@@ -5,9 +5,8 @@ from passlib.hash import bcrypt
 
 def create_user(db: Session, user: schemas.UserCreate):
     hashed_pw = bcrypt.hash(user.password)
-    db_user = models.User(
-        name=user.name, email=user.email, password_hash=hashed_pw
-    )
+    data = user.model_dump(exclude={"password"})
+    db_user = models.User(**data, password_hash=hashed_pw)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

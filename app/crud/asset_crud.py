@@ -1,11 +1,13 @@
 # app/crud/asset_crud.py
-
 from sqlalchemy.orm import Session
 from app import models, schemas
 
 
 def create_asset(db: Session, asset: schemas.AssetCreate):
-    db_asset = models.Asset(**asset.dict())
+    data = asset.model_dump()
+    if "symbol" in data and isinstance(data["symbol"], str):
+        data["symbol"] = data["symbol"].upper()
+    db_asset = models.Asset(**data)
     db.add(db_asset)
     db.commit()
     db.refresh(db_asset)
@@ -24,7 +26,8 @@ def update_asset(db: Session, asset_id: int, asset: schemas.AssetCreate):
     db_asset = get_asset(db, asset_id)
     if not db_asset:
         return None
-    for key, value in asset.dict().items():
+    updates = asset.model_dump(exclude_unset=True)
+    for key, value in updates.items():
         setattr(db_asset, key, value)
     db.commit()
     db.refresh(db_asset)

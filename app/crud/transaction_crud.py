@@ -5,7 +5,11 @@ from app import models, schemas
 
 
 def create_transaction(db: Session, transaction: schemas.TransactionCreate):
-    db_transaction = models.Transaction(**transaction.dict())
+    data = transaction.model_dump()
+    # normalizar o símbolo
+    if "symbol" in data and isinstance(data["symbol"], str):
+        data["symbol"] = data["symbol"].upper()
+    db_transaction = models.Transaction(**data)
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
@@ -30,7 +34,8 @@ def update_transaction(
     db_transaction = get_transaction(db, transaction_id)
     if not db_transaction:
         return None
-    for key, value in transaction.dict().items():
+    updates = transaction.model_dump(exclude_unset=True)
+    for key, value in updates.items():
         setattr(db_transaction, key, value)
     db.commit()
     db.refresh(db_transaction)
