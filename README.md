@@ -41,38 +41,47 @@ O **BunkerWallet** é uma aplicação em **Python + FastAPI** que permite:
 
 ### 1. Clonar o repositório
 
-```bash
-git clone https://github.com/seu-usuario/BunkerWallet.git
+bash
+git clone <https://github.com/seu-usuario/BunkerWallet.git>
 cd BunkerWallet
 
+### 2. Criar ambiente virtual
 
-
-2. Criar ambiente virtual
 python -m venv .venv
-# Ativar ambiente
-# Windows:
+
+### Ativar ambiente
+
+# Windows
+
 .venv\Scripts\activate
-# Linux/Mac:
+
+# Linux/MacOS
+
 source .venv/bin/activate
 
-3. Instalar dependências
+### 3. Instalar dependências
+
 pip install -r requirements.txt
 
+### 4. Configurar banco de dados
+
 Crie um arquivo .env na raiz do projeto com:
+
 DATABASE_URL=postgresql+psycopg2://wallet_user:wallet_pass@localhost:5432/wallet_db
 
-Rodar migrations
+### 5. Rodar migrations
+
 alembic upgrade head
 
-6. Subir a API
-uvicorn app.main:app --reload --port 8000
+### 6. Subir a API
 
+uvicorn app.main:app --reload --port 8000
 
 Agora acesse no navegador:
 
-🌍 API Root → http://127.0.0.1:8000/
+🌍 API Root → <http://127.0.0.1:8000/>
 
-📖 Swagger Docs → http://127.0.0.1:8000/docs
+📖 Swagger Docs → <http://127.0.0.1:8000/docs>
 
 📌 Endpoints iniciais
 👤 Usuários
@@ -81,10 +90,9 @@ POST /users/ → Criar usuário
 
 {
   "name": "Anthony",
-  "email": "anthony@example.com",
+  "email": "<anthony@example.com>",
   "password": "123456"
 }
-
 
 GET /users/ → Listar usuários
 
@@ -96,7 +104,6 @@ POST /wallets/ → Criar carteira
   "name": "Carteira BTC",
   "user_id": 1
 }
-
 
 GET /wallets/{user_id} → Listar carteiras de um usuário
 
@@ -111,12 +118,9 @@ GET /wallets/{user_id} → Listar carteiras de um usuário
 - [ ] Dashboard com saldos e histórico  
 - [ ] Integração com APIs de preços  
 
-
 🛡️ Licença
 
 Este projeto está sob a licença MIT.
 Sinta-se livre para usar, estudar e contribuir 🤝
 
-
 ---
-

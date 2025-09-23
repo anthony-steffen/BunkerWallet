@@ -30,5 +30,20 @@ class WalletResponse(WalletBase):
     created_at: datetime
 
 
+class AssetBase(BaseModel):
+    symbol: str
+    name: str
+    blockchain: str
+
+
+class AssetCreate(AssetBase):
+    pass
+
+
+class AssetResponse(AssetBase):
+    id: int
+    created_at: datetime
+
+
 class Config:
     from_attributes = True
