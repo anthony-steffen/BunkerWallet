@@ -2,6 +2,9 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 
+# ==============================
+# User Schemas
+# ==============================
 class UserBase(BaseModel):
     name: str
     email: EmailStr
@@ -16,6 +19,9 @@ class UserResponse(UserBase):
     created_at: datetime
 
 
+# ==============================
+# Wallet Schemas
+# ==============================
 class WalletBase(BaseModel):
     name: str
 
@@ -30,6 +36,9 @@ class WalletResponse(WalletBase):
     created_at: datetime
 
 
+# ==============================
+# Asset Schemas
+# ==============================
 class AssetBase(BaseModel):
     symbol: str
     name: str
@@ -43,6 +52,28 @@ class AssetCreate(AssetBase):
 class AssetResponse(AssetBase):
     id: int
     created_at: datetime
+
+
+# ==============================
+# Transaction Schemas
+# ==============================
+
+
+class TransactionBase(BaseModel):
+    wallet_id: int
+    asset_id: int
+    amount: float
+    price: float
+    type: str  # "buy", "sell", "deposit", "withdraw"
+
+
+class TransactionCreate(TransactionBase):
+    pass
+
+
+class TransactionResponse(TransactionBase):
+    id: int
+    timestamp: datetime
 
 
 class Config:

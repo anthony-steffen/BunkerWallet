@@ -59,6 +59,10 @@ python -m venv .venv
 
 source .venv/bin/activate
 
+# VScode gitBash
+
+source .venv/bin/activate
+
 ### 3. Instalar dependências
 
 pip install -r requirements.txt
