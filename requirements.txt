@@ -1,9 +1,22 @@
+# Framework principal
 fastapi
 uvicorn[standard]
+
+# ORM e banco
 sqlalchemy
 psycopg2-binary
-python-dotenv
 alembic
+
+# Validação e segurança
+pydantic[email]
+email-validator
+passlib[bcrypt]
+python-jose[cryptography]
+python-dotenv
+
+# Qualidade de código
 black
-autopep8 
+autopep8
 flake8
+isort
+mypy

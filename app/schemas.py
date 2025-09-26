@@ -20,6 +20,15 @@ class UserResponse(UserBase):
 
 
 # ==============================
+# Token
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+# ==============================
 # Wallet Schemas
 # ==============================
 class WalletBase(BaseModel):

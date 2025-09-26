@@ -3,6 +3,24 @@ from app.routers import user_router
 from app.routers import wallet_router
 from app.routers import asset_router
 from app.routers import transaction_router
+from fastapi.middleware.cors import CORSMiddleware
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+app = FastAPI(title="BunkerWallet API")
+
+# permitir seu frontend local (ajuste conforme necessário)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # porta do Vite (frontend)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app = FastAPI(title="BunkerWallet API")
 
