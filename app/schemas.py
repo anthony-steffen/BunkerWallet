@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 
 # ==============================
@@ -20,7 +21,10 @@ class UserResponse(UserBase):
 
 
 # ==============================
-# Token
+# Authentication
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class Token(BaseModel):
@@ -35,14 +39,17 @@ class WalletBase(BaseModel):
     name: str
 
 
-class WalletCreate(WalletBase):
-    user_id: int
+class WalletCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
 
 
-class WalletResponse(WalletBase):
+class WalletResponse(BaseModel):
     id: int
+    name: str
+    description: Optional[str] = None
     user_id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
 
 # ==============================

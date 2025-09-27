@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 
 # Carrega do environment (.env) - load_dotenv deve ter sido chamado no main
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-super-secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
