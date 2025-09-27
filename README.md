@@ -111,16 +111,26 @@ POST /wallets/ → Criar carteira
 
 GET /wallets/{user_id} → Listar carteiras de um usuário
 
-## 📜 Roadmap
+## 📜 Roadmap -BackEnd
 
 - [x] Configuração inicial do projeto  
 - [x] Banco de dados PostgreSQL + Alembic  
 - [x] CRUD de usuários  
 - [x] CRUD de carteiras  
-- [ ] CRUD de ativos  
-- [ ] CRUD de transações  
-- [ ] Dashboard com saldos e histórico  
-- [ ] Integração com APIs de preços  
+- [x] CRUD de ativos  
+- [x] CRUD de transações  
+- [x] Dashboard com saldos e histórico  
+- [x] Integração com APIs de preços  
+
+## 📜 Roadmap -FrontEnd
+
+- [ ] Registro de usuário
+- [ ] Login e altenticação de usuário
+- [ ] Cadastro de carteira
+- [ ] Cadastro de ativo
+- [ ] Listagem de transações
+- [ ] Listagem de saldos
+- [ ] Listagem de histórico de transações
 
 🛡️ Licença
 
