@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
+from app.models import TransactionType
 
 
 # ==============================
@@ -81,12 +82,16 @@ class TransactionBase(BaseModel):
     wallet_id: int
     asset_id: int
     amount: float
-    price: float
-    type: str  # "buy", "sell", "deposit", "withdraw"
+    price_at_time: float
+    type: TransactionType
 
 
 class TransactionCreate(TransactionBase):
-    pass
+    wallet_id: int
+    asset_id: int
+    amount: float
+    price_at_time: float
+    type: TransactionType
 
 
 class TransactionResponse(TransactionBase):
