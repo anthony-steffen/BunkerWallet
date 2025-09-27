@@ -1,17 +1,23 @@
 # app/crud/asset_crud.py
 from sqlalchemy.orm import Session
 from app import models, schemas
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException, status
 
 
 def create_asset(db: Session, asset: schemas.AssetCreate):
-    data = asset.model_dump()
-    if "symbol" in data and isinstance(data["symbol"], str):
-        data["symbol"] = data["symbol"].upper()
-    db_asset = models.Asset(**data)
+    db_asset = models.Asset(**asset.model_dump())
     db.add(db_asset)
-    db.commit()
-    db.refresh(db_asset)
-    return db_asset
+    try:
+        db.commit()
+        db.refresh(db_asset)
+        return db_asset
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Asset com símbolo '{asset.symbol}' já existe."
+        )
 
 
 def get_assets(db: Session, skip: int = 0, limit: int = 100):

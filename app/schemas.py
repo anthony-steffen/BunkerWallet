@@ -61,8 +61,10 @@ class AssetBase(BaseModel):
     blockchain: str
 
 
-class AssetCreate(AssetBase):
-    pass
+class AssetCreate(BaseModel):
+    name: str
+    symbol: str
+    blockchain: Optional[str] = None
 
 
 class AssetResponse(AssetBase):
