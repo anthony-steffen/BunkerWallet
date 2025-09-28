@@ -1,8 +1,12 @@
 import { useCurrentUser } from "@/hooks/useAuth";
 
 export default function Dashboard() {
-  const { data: user, isLoading } = useCurrentUser();
-
-  if (isLoading) return <p>Carregando...</p>;
-  return <h1>Bem-vindo, {user?.name}</h1>;
+  <div>Dashboard</div>
+  const { data: user } = useCurrentUser();
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>Olá {user?.name}</p>
+    </div>
+  ); 
 }

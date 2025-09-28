@@ -1,81 +1,93 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/api/api";
-import { User } from "@/types/User";
+// src/hooks/useAuth.ts
+import {
+	useMutation,
+	useQueryClient,
+	useQuery as useQueryFn,
+} from "@tanstack/react-query";
+import api from "@/api/api"; // se o alias "@/api" não funcionar, troque por "../api/api"
+import type { AxiosError } from "axios";
+import type { User } from "@/types/User";
+import { useAuthStore } from "@/store/authStore";
 
-// ----------------------
-// 🔹 Tipagens
-// ----------------------
-interface LoginResponse {
-  access_token: string;
-  token_type: string;
+
+type LoginPayload = { email: string; password: string };
+type LoginResponse = { access_token: string; token_type: string };
+
+/** Faz o POST /auth/login */
+async function loginRequest({
+	email,
+	password,
+}: LoginPayload): Promise<LoginResponse> {
+	const { data } = await api.post<LoginResponse>("/auth/login", {
+		email,
+		password,
+	});
+	return data;
 }
 
-// ----------------------
-// 🔹 Requests (API)
-// ----------------------
-
-// POST /auth/login
-async function loginRequest(email: string, password: string): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>("/auth/login", { email, password });
-  return data;
-}
-
-// POST /auth/logout (opcional, depende do backend)
-async function logoutRequest(): Promise<void> {
-  await api.post("/auth/logout");
-}
-
-// GET /auth/me
+/** Faz GET /auth/me */
 async function fetchCurrentUser(): Promise<User> {
-  const { data } = await api.get<User>("/auth/me");
-  return data;
+	const { data } = await api.get<User>("/auth/me");
+	return data;
 }
 
-// ----------------------
-// 🔹 Hooks
-// ----------------------
-
+/** ---------- useLogin ---------- */
+// useAuth.ts
 export function useLogin() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
+  const setToken = useAuthStore((s) => s.setToken);
 
-  return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      loginRequest(email, password),
+  return useMutation<LoginResponse, AxiosError, LoginPayload>({
+    mutationFn: loginRequest,
     onSuccess: (data) => {
-      // salva token no localStorage
-      localStorage.setItem("token", data.access_token);
+      const token = data.access_token;
 
-      // configura axios para sempre enviar o JWT
-      api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
+      // salva no localStorage
+      localStorage.setItem("token", token);;
 
-      // invalida cache do usuário → força refetch em useCurrentUser
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      // configura axios
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // atualiza zustand store
+      setToken(token);
+
+       // força revalidação do user
+      qc.invalidateQueries({ queryKey: ["user"] });
     },
   });
 }
 
+
+/** ---------- useLogout ---------- */
 export function useLogout() {
-  const queryClient = useQueryClient();
+	const qc = useQueryClient();
 
-  return useMutation({
-    mutationFn: logoutRequest,
-    onSuccess: () => {
-      // remove token
-      localStorage.removeItem("token");
-
-      // limpa header do axios
-      delete api.defaults.headers.common["Authorization"];
-
-      // remove cache do usuário
-      queryClient.removeQueries({ queryKey: ["user"] });
-    },
-  });
+	return useMutation<void, Error, void>({
+		mutationFn: async () => {
+			// se tiver rota /auth/logout no backend, chame aqui
+			localStorage.removeItem("token");
+			delete api.defaults.headers.common["Authorization"];
+		},
+		onSuccess: () => {
+			qc.removeQueries({ queryKey: ["user"] });
+		},
+	});
 }
 
+/** ---------- useCurrentUser ---------- */
 export function useCurrentUser() {
-  return useQuery<User>({
-    queryKey: ["user"],
-    queryFn: fetchCurrentUser,
-    retry: false, // não ficar tentando sem token
-  });
+	if (typeof window !== "undefined") {
+		const token = localStorage.getItem("token");
+		if (token && !api.defaults.headers.common["Authorization"]) {
+			api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+		}
+	}
+
+	return useQueryFn<User, AxiosError>({
+		queryKey: ["user"],
+		queryFn: fetchCurrentUser,
+		enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+		retry: false,
+		staleTime: 5 * 60 * 1000,
+	});
 }
