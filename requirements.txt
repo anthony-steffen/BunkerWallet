@@ -10,7 +10,8 @@ alembic
 # Validação e segurança
 pydantic[email]
 email-validator
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
 python-jose[cryptography]
 python-dotenv
 
@@ -20,3 +21,4 @@ autopep8
 flake8
 isort
 mypy
+
