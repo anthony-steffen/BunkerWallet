@@ -13,17 +13,19 @@ load_dotenv()
 
 app = FastAPI(title="BunkerWallet API")
 
+origins = [
+    "http://localhost:5173",  # frontend dev
+    # se futuramente for usar Vercel/Netlify, adicione a URL aqui
+]
+
 # permitir seu frontend local (ajuste conforme necessário)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # porta do Vite (frontend)
+    allow_origins=origins,  # libera apenas essas origens
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # GET, POST, PUT, DELETE...
+    allow_headers=["*"],  # Authorization, Content-Type...
 )
-
-
-app = FastAPI(title="BunkerWallet API")
 
 app.include_router(auth_router.router)
 app.include_router(user_router.router)
