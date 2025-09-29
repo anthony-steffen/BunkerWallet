@@ -104,6 +104,7 @@ class Transaction(Base):
     type = Column(Enum(TransactionType), nullable=False)
     amount = Column(Numeric(20, 8), nullable=False)
     price_at_time = Column(Numeric(20, 8), nullable=False)
+    description = Column(String, nullable=True)
     tx_hash = Column(String(200), nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 

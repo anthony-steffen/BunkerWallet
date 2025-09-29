@@ -84,14 +84,12 @@ class TransactionBase(BaseModel):
     amount: float
     price_at_time: float
     type: TransactionType
+    description: Optional[str] = None
+    tx_hash: Optional[str] = None
 
 
 class TransactionCreate(TransactionBase):
-    wallet_id: int
-    asset_id: int
-    amount: float
-    price_at_time: float
-    type: TransactionType
+    pass
 
 
 class TransactionResponse(TransactionBase):
