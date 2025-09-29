@@ -9,11 +9,30 @@ import type { AxiosError } from "axios";
 import type { User } from "@/types/User";
 import { useAuthStore } from "@/store/authStore";
 
-
 type LoginPayload = { email: string; password: string };
 type LoginResponse = { access_token: string; token_type: string };
 
-/** Faz o POST /auth/login */
+/** Faz GET /auth/me */
+async function fetchCurrentUser(): Promise<User> {
+	const { data } = await api.get<User>("/auth/me");
+	return data;
+}
+
+/** ---------- useRegister ---------- */
+type RegisterPayload = { name: string; email: string; password: string };
+
+async function registerRequest(payload: RegisterPayload) {
+	const { data } = await api.post("/auth/register", payload);
+	return data;
+}
+
+export function useRegister() {
+	return useMutation({
+		mutationFn: (payload: RegisterPayload) => registerRequest(payload),
+	});
+}
+
+/** ---------- useLogin ---------- */
 async function loginRequest({
 	email,
 	password,
@@ -25,38 +44,29 @@ async function loginRequest({
 	return data;
 }
 
-/** Faz GET /auth/me */
-async function fetchCurrentUser(): Promise<User> {
-	const { data } = await api.get<User>("/auth/me");
-	return data;
-}
-
-/** ---------- useLogin ---------- */
-// useAuth.ts
 export function useLogin() {
-  const qc = useQueryClient();
-  const setToken = useAuthStore((s) => s.setToken);
+	const qc = useQueryClient();
+	const setToken = useAuthStore((s) => s.setToken);
 
-  return useMutation<LoginResponse, AxiosError, LoginPayload>({
-    mutationFn: loginRequest,
-    onSuccess: (data) => {
-      const token = data.access_token;
+	return useMutation<LoginResponse, AxiosError, LoginPayload>({
+		mutationFn: loginRequest,
+		onSuccess: (data) => {
+			const token = data.access_token;
 
-      // salva no localStorage
-      localStorage.setItem("token", token);;
+			// salva no localStorage
+			localStorage.setItem("token", token);
 
-      // configura axios
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+			// configura axios
+			api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // atualiza zustand store
-      setToken(token);
+			// atualiza zustand store
+			setToken(token);
 
-       // força revalidação do user
-      qc.invalidateQueries({ queryKey: ["user"] });
-    },
-  });
+			// força revalidação do user
+			qc.invalidateQueries({ queryKey: ["user"] });
+		},
+	});
 }
-
 
 /** ---------- useLogout ---------- */
 export function useLogout() {

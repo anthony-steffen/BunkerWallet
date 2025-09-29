@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/api";
 import { Assets } from "@/types/Assets";
 
@@ -11,5 +11,18 @@ export function useAssets() {
   return useQuery<Assets[]>({
     queryKey: ["assets"],
     queryFn: fetchAssets,
+  });
+}
+
+export function useCreateAsset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (asset: Partial<Assets>) => {
+      const { data } = await api.post<Assets>("/assets", asset);
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["assets"] });
+    },
   });
 }

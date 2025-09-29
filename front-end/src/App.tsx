@@ -1,9 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/pages/Login'
+import Register from '@/pages/Register'
 import Dashboard from '@/pages/Dashboard'
 import { useAuthStore } from './store/authStore';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/secureRoutes/ProtectedRoute';
 
 export default function App() {
   const token = useAuthStore((s) => s.token);
@@ -20,6 +21,7 @@ export default function App() {
         }
       />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }
