@@ -65,7 +65,8 @@ class AssetBase(BaseModel):
     image: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[float] = None
-    created_at: datetime
+    market_cap: Optional[float] = None
+    rank: Optional[int] = None
 
 
 class AssetCreate(BaseModel):
@@ -76,6 +77,8 @@ class AssetCreate(BaseModel):
     image: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[float] = None
+    market_cap: Optional[float] = None
+    rank: Optional[int] = None
 
 
 class AssetResponse(BaseModel):
@@ -87,7 +90,6 @@ class AssetResponse(BaseModel):
     image: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[float] = None
-    created_at: datetime
 
 
 # ==============================

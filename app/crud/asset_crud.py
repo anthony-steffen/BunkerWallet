@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
 
+# 🔹 Cria um novo asset
 def create_asset(db: Session, asset: schemas.AssetCreate):
     db_asset = models.Asset(**asset.model_dump())
     try:
@@ -19,16 +20,9 @@ def create_asset(db: Session, asset: schemas.AssetCreate):
         )
 
 
+# 🔹 Lista todos os assets
 def get_assets(db: Session, skip: int = 0, limit: int = 100):
-    return (
-        db.query(models.Asset)
-        .order_by(
-            models.Asset.created_at.asc()
-        )  # 👈 ordena em data de criação
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    return db.query(models.Asset).offset(skip).limit(limit).all()
 
 
 def get_asset(db: Session, asset_id: int):

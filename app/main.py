@@ -1,30 +1,52 @@
+# app/main.py
 from fastapi import FastAPI
-from app.routers import auth_router
-from app.routers import user_router
-from app.routers import wallet_router
-from app.routers import asset_router
-from app.routers import transaction_router
 from fastapi.middleware.cors import CORSMiddleware
-
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+import logging
 from dotenv import load_dotenv
+from app.routers import (
+    auth_router,
+    user_router,
+    wallet_router,
+    asset_router,
+    transaction_router,
+)
+from app.seeders.seed_assets import seed_assets_batch
 
 load_dotenv()
+logger = logging.getLogger("bunkerwallet")
+logger.setLevel(logging.INFO)
 
 
-app = FastAPI(title="BunkerWallet API")
+scheduler = BackgroundScheduler()
 
-origins = [
-    "http://localhost:5173",  # frontend dev
-    # se futuramente for usar Vercel/Netlify, adicione a URL aqui
-]
 
-# permitir seu frontend local (ajuste conforme necessário)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Adiciona o job chamando a função real (callable)
+    scheduler.add_job(
+        seed_assets_batch,       # <<< aqui precisa ser a função, não o módulo
+        "interval",
+        minutes=30,
+        id="seed_assets_job",
+        replace_existing=True,
+        max_instances=1
+    )
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+
+
+app = FastAPI(title="BunkerWallet API", lifespan=lifespan)
+
+origins = ["http://localhost:5173"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # libera apenas essas origens
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # GET, POST, PUT, DELETE...
-    allow_headers=["*"],  # Authorization, Content-Type...
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth_router.router)

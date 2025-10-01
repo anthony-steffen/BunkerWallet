@@ -6,6 +6,9 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 alembic
+requests>=2.31.0
+apscheduler>=3.10.4
+
 
 # Validação e segurança
 pydantic[email]

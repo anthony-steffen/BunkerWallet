@@ -10,7 +10,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from .db import Base
-from datetime import datetime
 from sqlalchemy.types import Float
 import enum
 
@@ -69,11 +68,12 @@ class Asset(Base):
     name = Column(String, nullable=False)
     symbol = Column(String, nullable=False, unique=True)
     blockchain = Column(String, nullable=True)
-    description = Column(String, nullable=True)  # novo
-    image = Column(String, nullable=True)  # novo
-    price = Column(Float, nullable=True)  # novo
-    quantity = Column(Float, default=0)  # novo
-    created_at = Column(DateTime, default=datetime.utcnow)
+    description = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    price = Column(Float, nullable=True)
+    quantity = Column(Float, default=0)
+    market_cap = Column(Float, nullable=True)
+    rank = Column(Integer, nullable=True)
 
     # Relacionamentos
     wallet_assets = relationship("WalletAsset", back_populates="asset")
