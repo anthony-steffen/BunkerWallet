@@ -10,6 +10,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from .db import Base
+from datetime import datetime
+from sqlalchemy.types import Float
 import enum
 
 
@@ -64,10 +66,14 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id = Column(Integer, primary_key=True, index=True)
-    symbol = Column(String(10), nullable=False, unique=True, index=True)
-    name = Column(String(100), nullable=False)
-    blockchain = Column(String(50), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    name = Column(String, nullable=False)
+    symbol = Column(String, nullable=False, unique=True)
+    blockchain = Column(String, nullable=True)
+    description = Column(String, nullable=True)  # novo
+    image = Column(String, nullable=True)  # novo
+    price = Column(Float, nullable=True)  # novo
+    quantity = Column(Float, default=0)  # novo
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relacionamentos
     wallet_assets = relationship("WalletAsset", back_populates="asset")
@@ -101,7 +107,10 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=False)
     asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
-    type = Column(Enum(TransactionType), nullable=False)
+    type = Column(
+        Enum(TransactionType, name="transactiontype", create_type=False),
+        nullable=False,
+    )
     amount = Column(Numeric(20, 8), nullable=False)
     price_at_time = Column(Numeric(20, 8), nullable=False)
     description = Column(String, nullable=True)

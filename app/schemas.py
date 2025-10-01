@@ -51,25 +51,42 @@ class WalletResponse(BaseModel):
     description: Optional[str] = None
     user_id: int
     created_at: Optional[datetime] = None
+    balance: Optional[float] = None
 
 
 # ==============================
 # Asset Schemas
 # ==============================
 class AssetBase(BaseModel):
-    symbol: str
     name: str
-    blockchain: str
+    symbol: str
+    blockchain: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    price: Optional[float] = None
+    quantity: Optional[float] = None
+    created_at: datetime
 
 
 class AssetCreate(BaseModel):
     name: str
     symbol: str
     blockchain: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    price: Optional[float] = None
+    quantity: Optional[float] = None
 
 
-class AssetResponse(AssetBase):
+class AssetResponse(BaseModel):
     id: int
+    name: str
+    symbol: str
+    blockchain: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    price: Optional[float] = None
+    quantity: Optional[float] = None
     created_at: datetime
 
 
@@ -94,7 +111,15 @@ class TransactionCreate(TransactionBase):
 
 class TransactionResponse(TransactionBase):
     id: int
+    wallet_id: int
+    asset_id: int
+    amount: float
+    price_at_time: float
+    type: TransactionType
+    tx_hash: Optional[str] = None  # novo
     timestamp: datetime
+    asset: Optional[AssetResponse] = None
+    wallet: Optional[WalletResponse] = None
 
 
 class Config:

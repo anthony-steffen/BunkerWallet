@@ -6,6 +6,9 @@ from typing import List
 from app.db import get_db
 from app import schemas
 from app.crud import transaction_crud
+from app import models
+from app.routers.auth_router import get_current_user
+
 
 router = APIRouter(
     prefix="/transactions",
@@ -22,9 +25,14 @@ def create_transaction(
 
 @router.get("/", response_model=List[schemas.TransactionResponse])
 def list_transactions(
-    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+    db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
-    return transaction_crud.get_transactions(db=db, skip=skip, limit=limit)
+    return (
+        db.query(models.Transaction)
+        .join(models.Wallet)
+        .filter(models.Wallet.user_id == current_user.id)
+        .all()
+    )
 
 
 @router.get("/{transaction_id}", response_model=schemas.TransactionResponse)

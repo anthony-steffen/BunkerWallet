@@ -7,23 +7,24 @@ from fastapi import HTTPException, status
 
 def create_asset(db: Session, asset: schemas.AssetCreate):
     db_asset = models.Asset(**asset.model_dump())
-    db.add(db_asset)
     try:
+        db.add(db_asset)
         db.commit()
         db.refresh(db_asset)
         return db_asset
     except IntegrityError:
-        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Asset com símbolo '{asset.symbol}' já existe."
+            detail="Asset already exists",
         )
 
 
 def get_assets(db: Session, skip: int = 0, limit: int = 100):
     return (
         db.query(models.Asset)
-        .order_by(models.Asset.created_at.asc())  # 👈 ordena em data de criação
+        .order_by(
+            models.Asset.created_at.asc()
+        )  # 👈 ordena em data de criação
         .offset(skip)
         .limit(limit)
         .all()

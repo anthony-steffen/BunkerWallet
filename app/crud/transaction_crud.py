@@ -16,10 +16,6 @@ def create_transaction(db: Session, transaction: schemas.TransactionCreate):
     return db_transaction
 
 
-def get_transactions(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Transaction).offset(skip).limit(limit).all()
-
-
 def get_transaction(db: Session, transaction_id: int):
     return (
         db.query(models.Transaction)

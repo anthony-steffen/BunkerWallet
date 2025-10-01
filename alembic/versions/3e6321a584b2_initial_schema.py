@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 00f70f2fe3cb
-Revises: f819f773a76c
-Create Date: 2025-09-21 11:41:22.234501
+Revision ID: 3e6321a584b2
+Revises: 1b81e150ca08
+Create Date: 2025-09-30 16:21:32.928181
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "00f70f2fe3cb"
-down_revision: Union[str, Sequence[str], None] = "f819f773a76c"
+revision: str = "3e6321a584b2"
+down_revision: Union[str, Sequence[str], None] = "1b81e150ca08"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,21 +25,18 @@ def upgrade() -> None:
     op.create_table(
         "assets",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("symbol", sa.String(length=10), nullable=False),
-        sa.Column("name", sa.String(length=100), nullable=False),
-        sa.Column("blockchain", sa.String(length=50), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=True,
-        ),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("symbol", sa.String(), nullable=False),
+        sa.Column("blockchain", sa.String(), nullable=True),
+        sa.Column("description", sa.String(), nullable=True),
+        sa.Column("image", sa.String(), nullable=True),
+        sa.Column("price", sa.Float(), nullable=True),
+        sa.Column("quantity", sa.Float(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("symbol"),
     )
     op.create_index(op.f("ix_assets_id"), "assets", ["id"], unique=False)
-    op.create_index(
-        op.f("ix_assets_symbol"), "assets", ["symbol"], unique=True
-    )
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -83,6 +80,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("description", sa.String(), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -96,6 +94,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_wallets_id"), "wallets", ["id"], unique=False)
+    op.execute("DROP TYPE IF EXISTS transactiontype CASCADE;")
     op.create_table(
         "transactions",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -104,7 +103,12 @@ def upgrade() -> None:
         sa.Column(
             "type",
             sa.Enum(
-                "BUY", "SELL", "DEPOSIT", "WITHDRAW", name="transactiontype"
+                "BUY",
+                "SELL",
+                "DEPOSIT",
+                "WITHDRAW",
+                name="transactiontype",
+                create_type=True,
             ),
             nullable=False,
         ),
@@ -112,6 +116,7 @@ def upgrade() -> None:
         sa.Column(
             "price_at_time", sa.Numeric(precision=20, scale=8), nullable=False
         ),
+        sa.Column("description", sa.String(), nullable=True),
         sa.Column("tx_hash", sa.String(length=200), nullable=True),
         sa.Column(
             "timestamp",
@@ -119,14 +124,8 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=True,
         ),
-        sa.ForeignKeyConstraint(
-            ["asset_id"],
-            ["assets.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["wallet_id"],
-            ["wallets.id"],
-        ),
+        sa.ForeignKeyConstraint(["asset_id"], ["assets.id"]),
+        sa.ForeignKeyConstraint(["wallet_id"], ["wallets.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
@@ -174,7 +173,6 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_users_id"), table_name="users")
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
-    op.drop_index(op.f("ix_assets_symbol"), table_name="assets")
     op.drop_index(op.f("ix_assets_id"), table_name="assets")
     op.drop_table("assets")
     # ### end Alembic commands ###

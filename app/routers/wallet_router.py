@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app import schemas, models
 from app.routers.auth_router import get_current_user
+from app.crud import wallet_crud
+from typing import List
 
 router = APIRouter(prefix="/wallets", tags=["Wallets"])
 
@@ -14,14 +16,18 @@ def create_wallet(
     current_user: models.User = Depends(get_current_user),
 ):
     # opcional: verificar duplicidade de nome para o mesmo usuário
-    exists = db.query(models.Wallet).filter(
-        models.Wallet.user_id == current_user.id,
-        models.Wallet.name == wallet.name
-    ).first()
+    exists = (
+        db.query(models.Wallet)
+        .filter(
+            models.Wallet.user_id == current_user.id,
+            models.Wallet.name == wallet.name,
+        )
+        .first()
+    )
     if exists:
         raise HTTPException(
             status_code=400, detail="Wallet com esse nome já existe"
-            )
+        )
 
     db_wallet = models.Wallet(
         name=wallet.name,
@@ -34,15 +40,12 @@ def create_wallet(
     return db_wallet
 
 
-# lista as carteiras do usuário logado
-@router.get("/", response_model=list[schemas.WalletResponse])
+# Buscar o saldo total de todas as carteiras do usuário logado
+@router.get("/", response_model=List[schemas.WalletResponse])
 def list_wallets(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
-    return db.query(models.Wallet).filter(
-        models.Wallet.user_id == current_user.id
-        ).all()
+    return wallet_crud.get_wallets_with_balance(db, current_user.id)
 
 
 # buscar por wallet_id (apenas do usuário logado)
@@ -56,4 +59,3 @@ def get_wallet(
     if not wallet or wallet.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Wallet não encontrada")
     return wallet
-

@@ -12,6 +12,10 @@ export default function Dashboard() {
   const { data: transactions, isLoading: tLoading } = useTransactions();
   const { data: assets, isLoading: aLoading } = useAssets();
 
+  console.log("Wallets:", wallets);
+  console.log("Transactions:", transactions);
+  console.log("Assets:", assets); 
+
   return (
     <LayoutDashboards>
       {/* Grid superior */}
