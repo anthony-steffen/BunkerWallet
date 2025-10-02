@@ -3,7 +3,7 @@ import { Search, Bell, LogOut } from "lucide-react";
 
 export default function DashboardHeader() {
   return (
-    <header className="flex items-center justify-end bg-base-100 gap-10 p-4 rounded-lg shadow mb-6 w-full lg:gap-210">
+    <header className="flex items-center justify-end bg-base-100 gap-10 p-4 rounded-lg shadow mb-6lg:gap-210">
       <div className="flex items-center gap-4">
       {/* Título */}
       <h1 className="text-xl font-bold text-yellow-400">Dashboard</h1>

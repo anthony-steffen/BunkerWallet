@@ -29,7 +29,8 @@ def normalize_symbol(sym: str | None) -> str | None:
 
 def prepare_assets_payload(raw_data: list[dict]) -> list[dict]:
     """
-    Transforma os dados da API em uma lista deduplicada de dicionários prontos para inserção.
+    Transforma os dados da API em uma
+    lista deduplicada de dicionários prontos para inserção.
     A deduplicação é feita por SYMBOL normalizado (uppercase).
     """
     by_symbol: dict[str, dict] = {}

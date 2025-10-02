@@ -13,6 +13,7 @@ from app.routers import (
     transaction_router,
 )
 from app.seeders.seed_assets import seed_assets_batch
+from datetime import datetime, timedelta
 
 load_dotenv()
 logger = logging.getLogger("bunkerwallet")
@@ -24,18 +25,45 @@ scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Adiciona o job chamando a função real (callable)
-    scheduler.add_job(
-        seed_assets_batch,       # <<< aqui precisa ser a função, não o módulo
-        "interval",
-        minutes=30,
-        id="seed_assets_job",
-        replace_existing=True,
-        max_instances=1
-    )
-    scheduler.start()
-    yield
-    scheduler.shutdown()
+    """
+    Lifespan handler: inicia o scheduler em background e agenda o job de seed.
+    - A primeira execução é adiada (next_run_time)
+    para evitar bloqueios na inicialização.
+    """
+    try:
+        logger.info("Iniciando scheduler de background...")
+
+        # agenda job para rodar a cada 30 minutos, primeiro run em +30s
+        first_run = datetime.utcnow() + timedelta(seconds=30)
+
+        scheduler.add_job(
+            seed_assets_batch,          # callable (função importada)
+            "interval",
+            minutes=30,
+            id="seed_assets_job",
+            replace_existing=True,
+            max_instances=1,
+            next_run_time=first_run,    # ADIAR a primeira execução
+        )
+
+        scheduler.start()
+        logger.info(
+            "Scheduler iniciado. Job seed_assets agendado para %s",
+            first_run.isoformat()
+            )
+    except Exception as e:
+        logger.exception("Erro iniciando scheduler: %s", e)
+        # Não interromper o app — logue e continue (se preferir, re-raise)
+
+    try:
+        yield
+    finally:
+        logger.info("Interrompendo scheduler...")
+        try:
+            scheduler.shutdown(wait=False)
+            logger.info("Scheduler parado.")
+        except Exception:
+            logger.exception("Erro ao desligar scheduler.")
 
 
 app = FastAPI(title="BunkerWallet API", lifespan=lifespan)

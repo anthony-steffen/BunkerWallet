@@ -8,45 +8,40 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useAssets } from "@/hooks/useAssets";
 
 export default function Dashboard() {
-  const { data: wallets, isLoading: wLoading } = useWallets();
-  const { data: transactions, isLoading: tLoading } = useTransactions();
-  const { data: assets, isLoading: aLoading } = useAssets();
+	const { data: wallets, isLoading: wLoading } = useWallets();
+	const { data: transactions, isLoading: tLoading } = useTransactions();
+	const { data: assets, isLoading: aLoading } = useAssets();
 
-  console.log("Wallets:", wallets);
-  console.log("Transactions:", transactions);
-  console.log("Assets:", assets); 
+	return (
+		<LayoutDashboards>
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				{/* Coluna esquerda */}
+				
+					<WalletSummary wallets={wallets} />
 
-  return (
-    <LayoutDashboards>
-      {/* Grid superior */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="md:col-span-2">
-          <WalletSummary wallets={wallets} />
-        </div>
-        <div>
-          <AssetsList assets={assets} />
-        </div>
-      </div>
+	
+					<AssetsList assets={assets} />
+	
+				<div>
+					<TransactionsTable
+						transactions={transactions}
+						isLoading={tLoading || aLoading || wLoading}
+					/>
 
-      {/* Grid inferior */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <TransactionsTable
-            transactions={transactions}
-            isLoading={tLoading || aLoading || wLoading}
-          />
-        </div>
-        <div>
-          {/* Widgets extras */}
-          <div className="bg-base-100 p-4 rounded-lg shadow">
-            <h3 className="text-lg font-semibold">Quick Actions</h3>
-            <div className="mt-4 space-y-2">
-              <button className="btn btn-outline btn-block">Nova transação</button>
-              <button className="btn btn-outline btn-block">Importar carteira</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </LayoutDashboards>
-  );
+					{/* Widgets extras */}
+					<div className="bg-base-100 p-4 rounded-lg shadow">
+						<h3 className="text-lg font-semibold">Quick Actions</h3>
+						<div className="mt-4 space-y-2">
+							<button className="btn btn-outline btn-block">
+								Nova transação
+							</button>
+							<button className="btn btn-outline btn-block">
+								Importar carteira
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</LayoutDashboards>
+	);
 }
