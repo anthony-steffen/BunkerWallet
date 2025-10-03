@@ -7,7 +7,6 @@ export type Transaction = {
   asset_id: number;
   type: "buy" | "sell" | "deposit" | "withdraw" | string;
   amount: number;
-  price_at_time: number;
   tx_hash?: string | null;
   timestamp?: string;
   // optionally expanded relations:

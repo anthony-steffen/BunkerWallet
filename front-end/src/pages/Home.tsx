@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Search, LogOut, Wallet } from "lucide-react";
 import  api  from "@/api/api";
 
+import PortfolioSummary from "@/components/PortfolioSummary";
+
 interface Asset {
   id: number;
   name: string;
@@ -64,22 +66,16 @@ export default function Home() {
       {/* MAIN */}
       <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* RESUMO PORTFÓLIO */}
-        <div className="card bg-base-100 shadow-md col-span-1 lg:col-span-2">
-          <div className="card-body">
-            <h2 className="card-title">Resumo do Portfólio</h2>
-            <p className="text-3xl font-bold">$125,430.55</p>
-            <p className="text-success">+2.5% nas últimas 24h</p>
-          </div>
-        </div>
+        <PortfolioSummary />
 
         {/* AÇÕES RÁPIDAS */}
-        <div className="card bg-base-100 shadow-md">
+        {/* <div className="card bg-base-100 shadow-md">
           <div className="card-body">
             <h2 className="card-title">Ações Rápidas</h2>
             <button className="btn btn-success">Nova Transação</button>
             <button className="btn btn-outline">Importar Carteira</button>
           </div>
-        </div>
+        </div> */}
 
         {/* LISTA DE ATIVOS */}
         <div className="card bg-base-100 shadow-md col-span-1 lg:col-span-3">
