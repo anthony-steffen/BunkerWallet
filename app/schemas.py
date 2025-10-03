@@ -90,6 +90,7 @@ class AssetResponse(BaseModel):
     image: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[float] = None
+    rank: Optional[int] = None
 
 
 # ==============================
