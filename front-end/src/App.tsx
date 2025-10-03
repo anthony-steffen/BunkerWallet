@@ -2,9 +2,10 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
-import Dashboard from '@/pages/Dashboard'
+// import Dashboard from '@/pages/Dashboard'
 import { useAuthStore } from './store/authStore';
 import ProtectedRoute from './components/secureRoutes/ProtectedRoute';
+import Home from './pages/Home';
 
 export default function App() {
   const token = useAuthStore((s) => s.token);
@@ -13,14 +14,14 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route
-        path="/dashboard"
+        path="/home"
         element={
           <ProtectedRoute isAllowed={!!token}>
-            <Dashboard />
+            <Home />
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/register" element={<Register />} />
     </Routes>
   );

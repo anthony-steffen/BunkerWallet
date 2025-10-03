@@ -21,7 +21,6 @@ export default function Dashboard() {
 
 	
 					<AssetsList assets={assets} />
-	
 				<div>
 					<TransactionsTable
 						transactions={transactions}
@@ -41,6 +40,7 @@ export default function Dashboard() {
 						</div>
 					</div>
 				</div>
+	
 			</div>
 		</LayoutDashboards>
 	);

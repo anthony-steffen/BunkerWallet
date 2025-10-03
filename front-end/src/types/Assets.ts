@@ -1,4 +1,5 @@
  export interface Assets {
+  rank: number;
   id: number;
   name: string;
   symbol: string;
