@@ -71,7 +71,7 @@ def prepare_assets_payload(raw_data: list[dict]) -> list[dict]:
     return list(by_symbol.values())
 
 
-def seed_assets_batch(limit: int = 100):
+def seed_assets(limit: int = 100):
     db: Session = SessionLocal()
     try:
         raw = fetch_top_assets(limit=limit)
@@ -114,4 +114,4 @@ def seed_assets_batch(limit: int = 100):
 
 
 if __name__ == "__main__":
-    seed_assets_batch(limit=100)
+    seed_assets(limit=100)

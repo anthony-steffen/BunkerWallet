@@ -59,3 +59,12 @@ def get_wallet(
     if not wallet or wallet.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Wallet não encontrada")
     return wallet
+
+
+@router.get("/{wallet_id}/portfolio")
+def get_portfolio(
+    wallet_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return wallet_crud.get_portfolio_summary(db, wallet_id)

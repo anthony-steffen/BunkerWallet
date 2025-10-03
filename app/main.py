@@ -12,7 +12,7 @@ from app.routers import (
     asset_router,
     transaction_router,
 )
-from app.seeders.seed_assets import seed_assets_batch
+from app.seeders.seed_assets import seed_assets
 from datetime import datetime, timedelta
 
 load_dotenv()
@@ -37,20 +37,20 @@ async def lifespan(app: FastAPI):
         first_run = datetime.utcnow() + timedelta(seconds=30)
 
         scheduler.add_job(
-            seed_assets_batch,          # callable (função importada)
+            seed_assets,  # callable (função importada)
             "interval",
             minutes=30,
             id="seed_assets_job",
             replace_existing=True,
             max_instances=1,
-            next_run_time=first_run,    # ADIAR a primeira execução
+            next_run_time=first_run,  # ADIAR a primeira execução
         )
 
         scheduler.start()
         logger.info(
             "Scheduler iniciado. Job seed_assets agendado para %s",
-            first_run.isoformat()
-            )
+            first_run.isoformat(),
+        )
     except Exception as e:
         logger.exception("Erro iniciando scheduler: %s", e)
         # Não interromper o app — logue e continue (se preferir, re-raise)
