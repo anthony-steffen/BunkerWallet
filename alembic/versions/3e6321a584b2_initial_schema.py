@@ -113,9 +113,6 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("amount", sa.Numeric(precision=20, scale=8), nullable=False),
-        sa.Column(
-            "price_at_time", sa.Numeric(precision=20, scale=8), nullable=False
-        ),
         sa.Column("description", sa.String(), nullable=True),
         sa.Column("tx_hash", sa.String(length=200), nullable=True),
         sa.Column(

@@ -20,29 +20,6 @@ def get_wallets_by_user(db: Session, user_id: int):
     )
 
 
-# def get_balance(db: Session, user_id: int):
-#     wallets = (
-#         db.query(
-# models.Wallet).filter(models.Wallet.user_id == user_id
-# ).all()
-#     )
-#     result = []
-#     for w in wallets:
-#         balance = (
-#             db.query(
-#                 func.sum(
-#                     models.Transaction.amount
-#                     * models.Transaction.price_at_time
-#                 )
-#             )
-#             .filter(models.Transaction.wallet_id == w.id)
-#             .scalar()
-#         ) or 0
-#         w.balance = balance
-#         result.append(w)
-#     return result
-
-
 def get_portfolio_summary(db: Session, wallet_id: int):
     # Pegar todas as transações da carteira
     transactions = (

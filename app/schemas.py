@@ -102,7 +102,6 @@ class TransactionBase(BaseModel):
     wallet_id: int
     asset_id: int
     amount: float
-    price_at_time: float
     type: TransactionType
     description: Optional[str] = None
     tx_hash: Optional[str] = None
@@ -117,7 +116,6 @@ class TransactionResponse(TransactionBase):
     wallet_id: int
     asset_id: int
     amount: float
-    price_at_time: float
     type: TransactionType
     tx_hash: Optional[str] = None  # novo
     timestamp: datetime
