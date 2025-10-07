@@ -45,7 +45,7 @@ def create_wallet(
 def list_wallets(
     db: Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
-    return wallet_crud.get_wallets_with_balance(db, current_user.id)
+    return wallet_crud.get_wallets_by_user(db, current_user.id)
 
 
 # buscar por wallet_id (apenas do usuário logado)

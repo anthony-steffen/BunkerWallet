@@ -44,22 +44,22 @@ def get_portfolio_summary(db: Session, wallet_id: int):
             .filter(models.Asset.id == t.asset_id)
             .first()
         )
-        if not asset:
-            continue
+    if not asset:
+        pass
 
-        current_value = t.quantity * (asset.price or 0)
-        total_balance += current_value
+    current_value = float(t.quantity or 0) * float(asset.price or 0)
+    total_balance += current_value
 
-        assets_data.append(
-            {
-                "name": asset.name,
-                "symbol": asset.symbol,
-                "image": asset.image,
-                "quantity": t.quantity,
-                "current_price": asset.price,
-                "value_usd": current_value,
-            }
-        )
+    assets_data.append(
+        {
+            "name": asset.name,
+            "symbol": asset.symbol,
+            "image": asset.image,
+            "quantity": t.quantity,
+            "current_price": asset.price,
+            "value_usd": current_value,
+        }
+    )
 
     # calcular percentual
     for a in assets_data:

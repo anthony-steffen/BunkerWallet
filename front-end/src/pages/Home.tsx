@@ -1,134 +1,188 @@
 import { useEffect, useState } from "react";
-import { Search, LogOut, Wallet } from "lucide-react";
-import  api  from "@/api/api";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+	RefreshCcw,
+	Search,
+	Send,
+	ArrowDownToLine,
+	Repeat2,
+} from "lucide-react";
+import api from "../api/api";
 
-import PortfolioSummary from "@/components/PortfolioSummary";
+interface ChartDataInput {
+	name: string;
+	value: number;
+	[key: string]: string | number;
+}
 
 interface Asset {
-  id: number;
-  name: string;
-  symbol: string;
-  price: number;
-  image: string;
-  rank: number;
+	name: string;
+	symbol: string;
+	image: string;
+	quantity: number;
+	current_price: number;
+	value_usd: number;
+	percentage: number;
+}
+
+interface PortfolioSummary {
+	total_balance: number;
+	assets: Asset[];
 }
 
 export default function Home() {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [page, setPage] = useState(1);
+	const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
+	const [walletName, setWalletName] = useState<string>("");
+	const [loading, setLoading] = useState(true);
 
-  const itemsPerPage = 10;
+	const chartData: ChartDataInput[] =
+		portfolio?.assets.map((a) => ({
+			name: a.symbol,
+			value: a.value_usd,
+		})) || [];
 
-  useEffect(() => {
-    api.get("/assets/").then((res) => {
-      const sorted = res.data.sort((a: Asset, b: Asset) => a.rank - b.rank);
-      setAssets(sorted);
-    });
-  }, []);
+	const COLORS = [
+		"#FFD700",
+		"#4FD1C5",
+		"#9F7AEA",
+		"#48BB78",
+		"#F56565",
+		"#4299E1",
+	];
 
-  const paginatedAssets = assets.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+	async function fetchData() {
+		try {
+			const walletsRes = await api.get("/wallets/");
+			if (walletsRes.data.length > 0) {
+				const wallet = walletsRes.data[0];
+				setWalletName(wallet.name);
 
-  return (
-    <div className="flex flex-col min-h-screen bg-base-200 text-base-content text-ce">
-      {/* HEADER */}
-      <header className="flex items-center justify-between bg-base-100 px-4 py-3 shadow rounded-lg">
-      {/* Logo */}
-      <h1 className="text-lg font-bold text-yellow-400 ms-10">BunkerWallet</h1>
+				const res = await api.get(`/wallets/${wallet.id}/portfolio`);
+				setPortfolio(res.data);
+			}
+		} catch (error) {
+			console.error("Erro ao carregar dados:", error);
+		} finally {
+			setLoading(false);
+		}
+	}
 
-      {/* Ações */}
-      <div className="flex items-center gap-3">
-        {/* Campo de busca (visível apenas no md+) */}
-        <div className="hidden md:flex items-center bg-base-200 rounded-lg px-2 py-1">
-          <Search size={18} className="text-gray-400 mr-1" />
-          <input
-            type="text"
-            placeholder="Buscar ativo..."
-            className="bg-transparent outline-none text-sm w-32 md:w-48"
-          />
-        </div>
+	useEffect(() => {
+		fetchData();
+	}, []);
 
-        {/* Criar Carteira */}
-        <button className="btn btn-sm btn-warning gap-1">
-          <Wallet size={16} />
-          <span className="hidden sm:inline">Criar Carteira</span>
-        </button>
+	if (loading) {
+		return (
+			<div className="flex items-center justify-center h-screen bg-base-200">
+				<span className="loading loading-spinner loading-lg text-primary"></span>
+			</div>
+		);
+	}
 
-        {/* Logout */}
-        <button className="btn btn-ghost btn-circle text-red-500 hover:bg-red-500/10">
-          <LogOut size={20} />
-        </button>
-      </div>
-    </header>
+	return (
+		<div className="min-h-screen bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col">
+			{/* HEADER */}
+			<header className="flex justify-between items-center p-4">
+				<h1 className="text-lg font-bold">{walletName || "Minha Carteira"}</h1>
+				<div className="flex items-center gap-3">
+					<button className="btn btn-circle btn-ghost">
+						<Search size={20} />
+					</button>
+					<button className="btn btn-circle btn-ghost" onClick={fetchData}>
+						<RefreshCcw size={20} />
+					</button>
+				</div>
+			</header>
 
-      {/* MAIN */}
-      <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* RESUMO PORTFÓLIO */}
-        <PortfolioSummary />
+			{/* MAIN */}
+			<main className="flex-1 flex flex-col items-center px-4">
+				{/* BALANCE CIRCLE */}
+				<div className="relative w-full flex flex-col items-center mt-4">
+					<div className="w-64 h-64">
+						<ResponsiveContainer>
+							<PieChart>
+								<Pie
+									data={chartData}
+									dataKey="value"
+									cx="50%"
+									cy="50%"
+									innerRadius={80}
+									outerRadius={100}
+									stroke="none">
+									{chartData.map((_, i) => (
+										<Cell key={i} fill={COLORS[i % COLORS.length]} />
+									))}
+								</Pie>
+								<Tooltip
+									contentStyle={{ background: "#0f172a", border: "none" }}
+								/>
+							</PieChart>
+						</ResponsiveContainer>
+					</div>
 
-        {/* AÇÕES RÁPIDAS */}
-        {/* <div className="card bg-base-100 shadow-md">
-          <div className="card-body">
-            <h2 className="card-title">Ações Rápidas</h2>
-            <button className="btn btn-success">Nova Transação</button>
-            <button className="btn btn-outline">Importar Carteira</button>
-          </div>
-        </div> */}
+					{/* BALANCE LABEL */}
+					<div className="absolute inset-0 flex flex-col items-center justify-center">
+						<p className="text-2xl font-bold">
+							$
+							{portfolio?.total_balance
+								? portfolio.total_balance.toLocaleString(undefined, {
+										minimumFractionDigits: 2,
+										maximumFractionDigits: 2,
+									})
+								: "0.00"}
+						</p>
+						<p className="text-sm text-gray-400">Saldo total</p>
+					</div>
+				</div>
 
-        {/* LISTA DE ATIVOS */}
-        <div className="card bg-base-100 shadow-md col-span-1 lg:col-span-3">
-          <div className="card-body">
-            <h2 className="card-title">Principais Ativos</h2>
-            <div className="overflow-x-auto">
-              <table className="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Ativo</th>
-                    <th>Preço</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedAssets.map((asset) => (
-                    <tr key={asset.id}>
-                      <td>{asset.rank}</td>
-                      <td className="flex items-center gap-2">
-                        <img
-                          src={asset.image}
-                          alt={asset.name}
-                          className="w-6 h-6"
-                        />
-                        <span>{asset.name} ({asset.symbol})</span>
-                      </td>
-                      <td>${asset.price.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+				{/* LISTA DE ATIVOS */}
+				<div className="mt-6 w-full space-y-3">
+					{portfolio?.assets && portfolio.assets.length > 0 ? (
+						portfolio.assets.map((asset, idx) => (
+							<div
+								key={idx}
+								className="flex justify-between items-center bg-base-100/10 rounded-xl p-3 hover:bg-base-100/20 transition">
+								<div className="flex items-center gap-3">
+									<img
+										src={asset.image}
+										alt={asset.name}
+										className="w-8 h-8 rounded-full"
+									/>
+									<div>
+										<p className="font-semibold">{asset.name}</p>
+										<p className="text-xs text-gray-400">
+											{asset.quantity} {asset.symbol}
+										</p>
+									</div>
+								</div>
+								<div className="text-right">
+									<p className="font-semibold">${asset.value_usd.toFixed(2)}</p>
+									<p className="text-xs text-gray-400">
+										${asset.current_price.toFixed(2)}
+									</p>
+								</div>
+							</div>
+						))
+					) : (
+						<p className="text-center text-gray-400 mt-4">
+							Nenhum ativo encontrado nesta carteira
+						</p>
+					)}
+				</div>
+			</main>
 
-            {/* PAGINAÇÃO */}
-            <div className="flex justify-center gap-4 mt-4">
-              <button
-                className="btn btn-outline btn-sm"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Anterior
-              </button>
-              <button
-                className="btn btn-outline btn-sm"
-                disabled={page * itemsPerPage >= assets.length}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Próxima
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+			{/* FOOTER */}
+			<footer className="bg-base-100/20 p-4 flex justify-around items-center mt-4 rounded-t-2xl backdrop-blur-md">
+				<button className="btn btn-circle btn-primary btn-outline">
+					<ArrowDownToLine size={22} />
+				</button>
+				<button className="btn btn-circle btn-primary">
+					<Repeat2 size={22} />
+				</button>
+				<button className="btn btn-circle btn-primary btn-outline">
+					<Send size={22} />
+				</button>
+			</footer>
+		</div>
+	);
 }

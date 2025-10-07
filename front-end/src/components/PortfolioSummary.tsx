@@ -1,101 +1,62 @@
-// src/components/Home/PortfolioSummary.tsx
-import { Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { useEffect, useState } from "react";
-import api from "../api/api";
+// src/components/Dashboard/PortfolioSummary.tsx
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const COLORS = [
+  "#FFD700", // ouro
+  "#4FD1C5", // teal
+  "#F56565", // vermelho
+  "#4299E1", // azul
+  "#9F7AEA", // roxo
+];
 
-type Asset = {
-  id: number;
-  name: string;
-  symbol: string;
-  price: number;
-  quantity: number;
-  image: string;
-};
+export default function PortfolioSummary({ data }: { data: any }) {
+  if (!data) return null;
 
-export default function PortfolioSummary() {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [total, setTotal] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get("/assets");
-        const data = res.data;
-
-        setAssets(data);
-
-        const totalValue = data.reduce(
-          (sum: number, asset: Asset) => sum + asset.price * asset.quantity,
-          0
-        );
-        setTotal(totalValue);
-      } catch (err) {
-        console.error("Erro ao carregar assets", err);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const chartData = {
-    labels: assets.map((a) => a.symbol),
-    datasets: [
-      {
-        data: assets.map((a) => a.price * a.quantity),
-        backgroundColor: [
-          "#f59e0b", // amarelo
-          "#3b82f6", // azul
-          "#10b981", // verde
-          "#ef4444", // vermelho
-          "#8b5cf6", // roxo
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+  const assets = data.assets || [];
+  const chartData = assets.map((a: any) => ({
+    name: a.symbol,
+    value: a.value_usd,
+  }));
 
   return (
-    <div className="card bg-base-200 shadow p-4">
+    <div className="bg-base-100 rounded-lg shadow p-4">
       <h2 className="text-lg font-bold mb-2">Resumo do Portfólio</h2>
-
-      {/* Valor total */}
-      <p className="text-3xl font-bold text-success">
-        ${total.toLocaleString()}
+      <p className="text-gray-400 mb-4">
+        Saldo total: ${data.total_balance.toFixed(2)}
       </p>
-      <p className="text-sm text-gray-400 mb-4">+2.5% nas últimas 24h</p>
 
-      {/* Gráfico */}
-      <div className="flex justify-center">
-        <div className="w-48 h-48">
-          <Pie data={chartData} />
-        </div>
-      </div>
-
-      {/* Lista de ativos */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {assets.slice(0, 4).map((asset) => {
-          const value = asset.price * asset.quantity;
-          const percentage = ((value / total) * 100).toFixed(2);
-
-          return (
-            <div
-              key={asset.id}
-              className="card bg-base-100 shadow p-3 flex flex-col items-center"
+      {assets.length > 0 ? (
+        <div className="flex flex-col md:flex-row gap-6 items-center">
+          <PieChart width={200} height={200}>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              dataKey="value"
             >
-              <img src={asset.image} alt={asset.symbol} className="w-6 h-6 mb-1" />
-              <p className="text-sm font-bold">{asset.name}</p>
-              <p className="text-xs text-gray-400">{percentage}%</p>
-            </div>
-          );
-        })}
-      </div>
+              {chartData.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+
+          <ul className="flex-1 space-y-2">
+            {assets.map((a: any) => (
+              <li key={a.symbol} className="flex justify-between">
+                <span className="flex items-center gap-2">
+                  <img src={a.image} alt={a.symbol} className="w-5 h-5 rounded-full" />
+                  {a.symbol} ({a.quantity})
+                </span>
+                <span>${a.value_usd.toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="text-gray-400">Nenhum ativo na carteira</p>
+      )}
     </div>
   );
 }
