@@ -1,4 +1,4 @@
-import LayoutDashboards from "@/components/Dashboard/LayoutDashboard";
+import LayoutDashboards from "@/components/layout/LayoutDashboard";
 import WalletSummary from "@/components/Dashboard/WalletSummary";
 import TransactionsTable from "@/components/Dashboard/TransactionsTable";
 import AssetsList from "@/components/Dashboard/AssetsList";

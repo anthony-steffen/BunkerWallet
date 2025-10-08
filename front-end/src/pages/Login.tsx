@@ -18,7 +18,7 @@ export default function Login() {
 			{
 				onSuccess: () => {
 					console.log("✅ Login realizado, redirecionando...");
-					navigate("/dashboard");
+					navigate("/home");
 				},
 			}
 		);
