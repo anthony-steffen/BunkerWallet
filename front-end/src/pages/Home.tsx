@@ -1,16 +1,9 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import {
-	// Send,
-	// ArrowDownToLine,
-	// Repeat2,
-	RefreshCcw,
-	Search,
-	LogOut,
-	Wallet,
-} from "lucide-react";
 import api from "../api/api";
 import LayoutDashboards from "../components/layout/LayoutDashboard";
+import { FooterActions } from "@/components/home/FooterActions";
+import { Header} from "@/components/layout/Header";
 
 interface Asset {
 	name: string;
@@ -71,37 +64,7 @@ export default function Home() {
 		<div className="min-h-screen text-white flex flex-col">
 			<LayoutDashboards>
 				{/* HEADER */}
-				<header className=" flex justify-between items-center p-4 bg-base-100 shadow-md">
-					<div className="flex items-center gap-2">
-						<Wallet size={20} className="text-yellow-400" />
-						<h1 className="text-lg font-bold text-yellow-400">{walletName}</h1>
-					</div>
-
-					<div className="flex items-center gap-3">
-						{/* Busca */}
-						<div className="hidden md:flex items-center bg-base-200 rounded-lg px-3 py-1">
-							<Search size={16} className="text-gray-400 mr-2" />
-							<input
-								type="text"
-								placeholder="Buscar..."
-								className="bg-transparent outline-none text-sm w-32 md:w-48"
-							/>
-						</div>
-
-						{/* Atualizar */}
-						<button
-							className="btn btn-circle btn-ghost hover:bg-base-200"
-							onClick={fetchData}
-							title="Atualizar">
-							<RefreshCcw size={18} />
-						</button>
-
-						{/* Logout */}
-						<button className="btn btn-circle btn-ghost text-red-500 hover:bg-red-500/10">
-							<LogOut size={18} />
-						</button>
-					</div>
-				</header>
+				<Header walletName={walletName} onRefresh={fetchData} />
 
 				{/* CONTEÚDO */}
 				<main className="flex-1 flex flex-col items-center px-4 py-6 shadow-md">
@@ -197,17 +160,7 @@ export default function Home() {
 				</main>
 
 				{/* FOOTER */}
-				{/* <footer className="bg-base-100/20 p-4 flex justify-around items-center mt-4 rounded-t-2xl backdrop-blur-md shadow-inner">
-        <button className="btn btn-circle btn-primary btn-outline">
-          <ArrowDownToLine size={22} />
-        </button>
-        <button className="btn btn-circle btn-primary">
-          <Repeat2 size={22} />
-        </button>
-        <button className="btn btn-circle btn-primary btn-outline">
-          <Send size={22} />
-        </button>
-      </footer> */}
+				<FooterActions />
 			</LayoutDashboards>
 		</div>
 	);

@@ -11,14 +11,14 @@ export default function Sidebar() {
 
       {/* Botão hambúrguer - visível apenas no mobile */}
           <button
-            className="btn btn-ghost md:hidden fixed top-6 left-4 z-50"
+            className="btn btn-ghost md:hidden fixed top-4 left-4 z-50"
             onClick={() => setOpen(!open)}
           >
             <Menu size={24} />
           </button>
       {/* Sidebar */}
       <aside
-        className={`fixed h-screen md:static top-0 left-0 w-64 bg-base-300 p-6 transform transition-transform duration-300 z-40
+        className={`fixed h-screen md:static top-0 left-0 w-64 bg-base-300 p-4 transform transition-transform duration-300 z-40
           ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         <div className="flex items-center gap-3 mb-8 justify-end lg:justify-start">

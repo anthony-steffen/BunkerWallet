@@ -4,12 +4,14 @@ export default function LayoutDashboards({ children }: { children: React.ReactNo
   return (
     <div className="flex h-screen bg-base-200">
       {/* Sidebar (desktop) */}
-      <Sidebar />
+      <div className="z-20">
+        <Sidebar />
+      </div>
 
-      {/* Main content */}
-
-        {/* Conteúdo dinâmico */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+      {/* Conteúdo dinâmico */}
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 }

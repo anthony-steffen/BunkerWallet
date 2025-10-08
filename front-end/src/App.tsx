@@ -6,7 +6,7 @@ import Register from "@/pages/Register";
 import { useAuthStore } from "./store/authStore";
 import ProtectedRoute from "./components/secureRoutes/ProtectedRoute";
 import Home from "./pages/Home";
-import NavigationBar from "./components/navigationBar";
+// import NavigationBar from "./components/NavigationBar";
 
 export default function App() {
 	const token = useAuthStore((s) => s.token);
@@ -26,7 +26,7 @@ export default function App() {
 				<Route path="/" element={<Navigate to="/home" replace />} />
 				<Route path="/register" element={<Register />} />
 			</Routes>
-			<NavigationBar />
+			{/* <NavigationBar /> */}
 		</>
 	);
 }
