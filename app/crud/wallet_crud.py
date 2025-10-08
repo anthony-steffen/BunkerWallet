@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas
 from sqlalchemy import func
@@ -68,3 +69,32 @@ def get_portfolio_summary(db: Session, wallet_id: int):
         )
 
     return {"total_balance": total_balance, "assets": assets_data}
+
+
+# Editar carteira
+def update_wallet(db: Session, wallet_id: int, wallet: schemas.WalletUpdate):
+    db_wallet = (
+        db.query(models.Wallet).filter(models.Wallet.id == wallet_id).first()
+    )
+    if not db_wallet:
+        raise HTTPException(status_code=404, detail="Wallet não encontrada")
+
+    update_data = wallet.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_wallet, key, value)
+
+    db.commit()
+    db.refresh(db_wallet)
+    return db_wallet
+
+
+def delete_wallet(db: Session, wallet_id: int):
+    db_wallet = (
+        db.query(models.Wallet).filter(models.Wallet.id == wallet_id).first()
+    )
+    if not db_wallet:
+        raise HTTPException(status_code=404, detail="Wallet não encontrada")
+
+    db.delete(db_wallet)
+    db.commit()
+    return {"message": "Wallet deletada com sucesso"}

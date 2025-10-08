@@ -45,6 +45,10 @@ class WalletCreate(BaseModel):
     description: Optional[str] = None
 
 
+class WalletUpdate(BaseModel):
+    name: str
+
+
 class WalletResponse(BaseModel):
     id: int
     name: str

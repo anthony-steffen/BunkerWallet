@@ -68,3 +68,27 @@ def get_portfolio(
     current_user: models.User = Depends(get_current_user),
 ):
     return wallet_crud.get_portfolio_summary(db, wallet_id)
+
+
+@router.put("/{wallet_id}", response_model=schemas.WalletResponse)
+def update_wallet(
+    wallet_id: int,
+    wallet: schemas.WalletUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    wallet = wallet_crud.update_wallet(db, wallet_id, wallet)
+    return wallet
+
+
+@router.delete("/{wallet_id}")
+def delete_wallet(
+    wallet_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    wallet = db.get(models.Wallet, wallet_id)
+    if not wallet or wallet.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Wallet não encontrada")
+
+    return wallet_crud.delete_wallet(db, wallet_id)
