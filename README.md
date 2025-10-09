@@ -53,7 +53,7 @@ python -m venv .venv
 
 # Windows
 
-.venv\Scripts\activate
+source .venv/Scripts/activate
 
 # Linux/MacOS
 
