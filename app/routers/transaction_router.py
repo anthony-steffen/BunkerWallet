@@ -18,9 +18,13 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.TransactionResponse)
 def create_transaction(
-    transaction: schemas.TransactionCreate, db: Session = Depends(get_db)
+    transaction: schemas.TransactionCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),  # <--- exigir auth
 ):
-    return transaction_crud.create_transaction(db=db, transaction=transaction)
+    return transaction_crud.create_transaction(
+        db=db, transaction=transaction, current_user=current_user
+    )
 
 
 @router.get("/", response_model=List[schemas.TransactionResponse])

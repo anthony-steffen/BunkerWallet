@@ -107,6 +107,7 @@ class TransactionBase(BaseModel):
     asset_id: int
     amount: float
     type: TransactionType
+    price: Optional[float] = None
     description: Optional[str] = None
     tx_hash: Optional[str] = None
 
@@ -121,10 +122,14 @@ class TransactionResponse(TransactionBase):
     asset_id: int
     amount: float
     type: TransactionType
+    price: Optional[float] = None
     tx_hash: Optional[str] = None  # novo
     timestamp: datetime
     asset: Optional[AssetResponse] = None
     wallet: Optional[WalletResponse] = None
+
+    class Config:
+        from_attributes = True
 
 
 class Config:

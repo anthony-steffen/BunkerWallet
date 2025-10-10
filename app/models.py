@@ -112,6 +112,7 @@ class Transaction(Base):
         nullable=False,
     )
     amount = Column(Numeric(20, 8), nullable=False)
+    price = Column(Numeric(24, 8), nullable=False, server_default="0")
     description = Column(String, nullable=True)
     tx_hash = Column(String(200), nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
