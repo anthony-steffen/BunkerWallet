@@ -7,7 +7,7 @@ interface HeaderProps {
 
 export function Header({ walletName, onRefresh }: HeaderProps) {
   return (
-    <header className="flex justify-end items-center space-x-10 p-4 bg-base-100 shadow-md">
+    <header className="flex justify-end items-center lg:space-x-100 space-x-5 p-4 bg-base-100 shadow-md">
       {/* Nome da carteira */}
       <div className="flex items-center space-x-1 align-center">
         <Wallet size={20} className="text-yellow-400" />

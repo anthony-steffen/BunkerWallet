@@ -30,14 +30,14 @@ export default function Sidebar() {
 
         <nav className="flex flex-col gap-2">
           <NavLink
-            to="/dashboard"
+            to="/Home"
             className={({ isActive }) =>
               `px-3 py-2 rounded-lg ${
                 isActive ? "bg-base-200 text-yellow-400" : "text-gray-300"
               }`
             }
           >
-            <Home size={16} className="inline mr-2" /> Dashboard
+            <Home size={16} className="inline mr-2" /> Home
           </NavLink>
           <NavLink
             to="/wallets"
