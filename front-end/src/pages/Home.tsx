@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { FooterActions } from "@/components/home/FooterActions";
 import { PortfolioDonutChart } from "@/components/home/PortfolioDonutChart";
 import { usePortfolioQuery } from "@/hooks/usePortfolioQuery";
-import { PortfolioTable } from "@/components/home/PortfolioTable";
+import   PortfolioTable   from "@/components/home/PortfolioTable";
 
 export default function Home() {
 	const { data: portfolio, isLoading, refetch } = usePortfolioQuery();
@@ -42,6 +42,7 @@ export default function Home() {
 											assets={portfolio.assets.map((a) => ({
 												...a,
 												performance_pct: a.performance_pct ?? 0, // ✅ valor padrão 0
+												color: a.color ?? "#8884d8", // valor padrão para color
 											}))}
 										/>
 									</div>

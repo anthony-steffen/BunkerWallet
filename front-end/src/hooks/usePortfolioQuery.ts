@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/api/api";
 
 export interface Asset {
+	color: string;
   name: string;
   symbol: string;
   image: string;

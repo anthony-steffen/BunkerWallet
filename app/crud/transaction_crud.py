@@ -17,7 +17,8 @@ def _to_tx_type(value) -> models.TransactionType:
         try:
             return models.TransactionType(value.lower())
         except ValueError:
-            # tenta aceitar também valores já em lower/upper/Title, mas TransactionType() cuida disso
+            # tenta aceitar também valores já em lower/upper/Title,
+            # mas TransactionType() cuida disso
             raise
     raise ValueError("Tipo de transaction inválido")
 
@@ -49,7 +50,8 @@ def create_transaction(
     if not asset:
         raise HTTPException(status_code=404, detail="Asset não encontrado")
 
-    # 3) determina preço da transação (preço enviado pelo cliente ou preço atual do asset)
+    # 3) determina preço da transação
+    # (preço enviado pelo cliente ou preço atual do asset)
     price_now = Decimal(str(asset.price or 0))
     tx_price = (
         Decimal(str(transaction.price))
@@ -78,7 +80,8 @@ def create_transaction(
 
     try:
         db.add(db_tx)
-        # flush para garantir que o INSERT seja executado e o objeto tenha PK sem commitar
+        # flush para garantir que o INSERT
+        # seja executado e o objeto tenha PK sem commitar
         db.flush()
 
         # 6) atualiza ou cria WalletAsset balance (com lock pessimista)
@@ -99,7 +102,8 @@ def create_transaction(
             db.add(wa)
             db.flush()  # garante que wa está persistido
 
-        # 7) aplicar efeito no balance conforme tipo (usar tx_type já normalizado)
+        # 7) aplicar efeito no balance conforme tipo
+        # (usar tx_type já normalizado)
         current_balance = Decimal(wa.balance or 0)
         amt = Decimal(str(transaction.amount))
 
@@ -108,7 +112,8 @@ def create_transaction(
         elif tx_type == models.TransactionType.SELL:
             wa.balance = current_balance - amt
             # Nota: política de permitir saldo negativo fica a seu critério.
-            # Se quiser impedir, faça uma checagem aqui e lance HTTPException(status_code=400).
+            # Se quiser impedir, faça uma checagem aqui e
+            # lance HTTPException(status_code=400).
         elif tx_type in (
             models.TransactionType.DEPOSIT,
             models.TransactionType.WITHDRAW,
@@ -120,7 +125,8 @@ def create_transaction(
             else:
                 wa.balance = current_balance - amt
 
-        # 8) refresh para garantir que db_tx atualize campos gerados (timestamp, id, etc.)
+        # 8) refresh para garantir que db_tx atualize campos gerados
+        # (timestamp, id, etc.)
         db.refresh(db_tx)
 
         # 9) commit final
@@ -150,7 +156,8 @@ def update_transaction(
 ) -> Optional[models.Transaction]:
     """
     Atualiza campos não financeiros da transação (ex: description, tx_hash).
-    Não altera quantidade/price/type por padrão (isso exigiria reprocessar saldos).
+    Não altera quantidade/price/type por padrão
+    (isso exigiria reprocessar saldos).
     """
     db_tx = db.get(models.Transaction, transaction_id)
     if not db_tx:
@@ -176,8 +183,10 @@ def delete_transaction(
     db: Session, transaction_id: int
 ) -> Optional[models.Transaction]:
     """
-    Deleta a transação e aplica um ajuste simples no WalletAsset (efeito reverso).
-    Em produção é recomendado recomputar posições inteiras ao remover uma transação.
+    Deleta a transação e aplica um ajuste simples no WalletAsset
+    (efeito reverso).
+    Em produção é recomendado recomputar
+    posições inteiras ao remover uma transação.
     """
     db_tx = db.get(models.Transaction, transaction_id)
     if not db_tx:

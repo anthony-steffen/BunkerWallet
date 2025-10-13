@@ -1,8 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas
-from sqlalchemy import func
+
 from decimal import Decimal
+from app.utils.coingecko import fetch_asset_price
+from app.utils.asset_colors import get_asset_color
 
 
 def create_wallet(db: Session, wallet: schemas.WalletCreate):
@@ -23,7 +25,6 @@ def get_wallets_by_user(db: Session, user_id: int):
 
 
 def get_portfolio_summary(db: Session, wallet_id: int):
-    # Busca todas as transações da carteira
     transactions = (
         db.query(models.Transaction)
         .filter(models.Transaction.wallet_id == wallet_id)
@@ -32,19 +33,16 @@ def get_portfolio_summary(db: Session, wallet_id: int):
     )
 
     if not transactions:
-        return {"total_balance": 0.0, "assets": []}
+        return {"total_balance": 0, "assets": []}
 
-    assets_map = {}
+    assets_map: dict[int, dict] = {}
 
     for tx in transactions:
         aid = tx.asset_id
-        asset = db.query(models.Asset).filter(models.Asset.id == aid).first()
-
-        if not asset:
-            # Se o ativo não existir, ignora (proteção de integridade)
-            continue
-
         if aid not in assets_map:
+            asset = (
+                db.query(models.Asset).filter(models.Asset.id == aid).first()
+            )
             assets_map[aid] = {
                 "asset": asset,
                 "quantity": Decimal(0),
@@ -52,60 +50,77 @@ def get_portfolio_summary(db: Session, wallet_id: int):
             }
 
         rec = assets_map[aid]
-        amount = Decimal(tx.amount)
-        tx_price = Decimal(tx.price or 0)
-        tx_type = (
-            tx.type.value
-            if hasattr(tx.type, "value")
-            else str(tx.type).lower()
-        )
+        amt = Decimal(tx.amount)
+        price = Decimal(tx.price or 0)
 
-        if tx_type == "buy":
-            rec["quantity"] += amount
-            rec["total_cost"] += amount * tx_price
-        elif tx_type == "sell":
+        if tx.type.value == "buy":
+            rec["quantity"] += amt
+            rec["total_cost"] += amt * price
+        elif tx.type.value == "sell":
             if rec["quantity"] > 0:
                 avg_price = rec["total_cost"] / rec["quantity"]
-                rec["quantity"] -= amount
-                rec["total_cost"] -= amount * avg_price
-
-        # Você pode adicionar suporte para deposit/withdraw aqui se desejar
+                rec["quantity"] -= amt
+                rec["total_cost"] -= amt * avg_price
 
     assets_data = []
     total_balance = Decimal(0)
 
-    for rec in assets_map.values():
+    for aid, rec in assets_map.items():
         asset = rec["asset"]
-        quantity = rec["quantity"]
+        qty = rec["quantity"]
         total_cost = rec["total_cost"]
 
-        if quantity <= 0:
+        if qty <= 0:
             continue
 
-        avg_price = (total_cost / quantity) if quantity > 0 else Decimal(0)
+        avg_price = (total_cost / qty) if qty != 0 else Decimal(0)
         current_price = Decimal(asset.price or 0)
-        current_value = quantity * current_price
+        current_value = qty * current_price
         total_balance += current_value
 
+        # 🧩 Enriquecer com dados da CoinGecko
+        api_data = fetch_asset_price(asset.symbol)
+        price_24h_ago = (
+            Decimal(api_data.get("price_24h_ago") or 0)
+            if api_data
+            else Decimal(0)
+        )
+        performance_24h = (
+            Decimal(api_data.get("performance_pct_24h") or 0)
+            if api_data
+            else Decimal(0)
+        )
+
+        change_24h_usd = (
+            (current_price - price_24h_ago) * qty
+            if price_24h_ago > 0
+            else Decimal(0)
+        )
+
         performance_pct = (
-            float(((current_price - avg_price) / avg_price * 100))
+            ((current_price - avg_price) / avg_price * 100)
             if avg_price > 0
-            else 0
+            else Decimal(0)
         )
 
         assets_data.append(
             {
                 "name": asset.name,
                 "symbol": asset.symbol,
+                "color": get_asset_color(asset.symbol),
                 "image": asset.image,
-                "quantity": float(quantity),
-                "purchase_price": float(avg_price),
-                "current_price": float(current_price),
-                "value_usd": float(current_value),
-                "performance_pct": performance_pct,
+                "quantity": float(round(qty, 6)),
+                "current_price": float(round(current_price, 4)),
+                "purchase_price": float(round(avg_price, 4)),
+                "value_usd": float(round(current_value, 2)),
+                "performance_pct": float(round(performance_pct, 2)),
+                "price_24h_ago": float(round(price_24h_ago, 4)),
+                "change_24h_usd": float(round(change_24h_usd, 2)),
+                "performance_pct_24h": float(round(performance_24h, 2)),
             }
         )
 
+    # Calcula % do portfólio
     for a in assets_data:
         a["percentage"] = (
             (a["value_usd"] / float(total_balance) * 100)
@@ -113,10 +128,7 @@ def get_portfolio_summary(db: Session, wallet_id: int):
             else 0
         )
 
-    return {
-        "total_balance": float(total_balance),
-        "assets": assets_data,
-    }
+    return {"total_balance": float(total_balance), "assets": assets_data}
 
 
 # Editar carteira
