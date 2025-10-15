@@ -22,8 +22,8 @@ const TransactionTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
           className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all font-medium
             ${
               activeTab === tab.id
-                ? "bg-gradient-to-r from-yellow-400 to-cyan-400 text-black shadow-md"
-                : "bg-base-300/40 text-gray-400 hover:text-white hover:bg-base-300/60"
+                ? "bg-yellow-400 text-gray-900 shadow-md border-1 border-white "
+                : "bg-base-300/70 text-gray-400 hover:text-white hover:bg-base-300/60 border-1 border-base-content/20"
             }`}
         >
           {tab.icon}

@@ -10,7 +10,7 @@ export default function Transactions() {
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-base-200 text-gray-100 p-6 lg:p-10">
-      <h1 className="text-2xl font-bold mb-6">Transações</h1>
+      <h1 className="text-3xl font-bold mb-6 text-yellow-400 text-center">Transações</h1>
 
       {/* Tabs de navegação */}
       <TransactionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
