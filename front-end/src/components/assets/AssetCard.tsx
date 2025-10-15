@@ -14,17 +14,17 @@ export default function AssetCard({ coin }: Props) {
   const color = isPositive ? "text-green-400" : "text-red-400";
 
   return (
-    <div className="bg-base-100/10 rounded-xl p-4 flex flex-col gap-3 shadow-md hover:bg-base-100/20 transition">
+    <div className="bg-base-100/10 rounded-xl p-4 flex flex-col shadow-md hover:bg-base-100/20 transition">
       {/* Top: Nome e símbolo */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
             src={coin.image}
             alt={coin.name}
-            className="w-10 h-10 rounded-full shadow"
+            className="w-5 h-5 rounded-full shadow"
           />
           <div>
-            <p className="font-semibold text-gray-100">{coin.name}</p>
+            <p className="font-semibold text-gray-100 text-sm">{coin.name}</p>
             <p className="text-xs text-gray-500 uppercase">{coin.symbol}</p>
           </div>
         </div>
@@ -32,7 +32,7 @@ export default function AssetCard({ coin }: Props) {
       </div>
 
       {/* Middle: Gráfico */}
-      <div className="h-[50px]">
+      <div className="h-[15px]">
         <MiniSparklineChart data={coin.sparkline_in_7d.price} />
       </div>
 

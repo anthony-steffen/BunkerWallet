@@ -53,7 +53,7 @@ export default function AssetsPage() {
 		<div className="min-h-screen text-white flex flex-col">
 			<LayoutDashboard>
 				<Header walletName="Minha Carteira" onRefresh={refetch} />
-				<div className="p-4 w-full">
+				<div className="p-4 lg:w-1/2 mt-20 mx-auto ">
 					{/* Desktop */}
 					<div className="hidden lg:block">
 						<AssetsTable assets={filtered} />
