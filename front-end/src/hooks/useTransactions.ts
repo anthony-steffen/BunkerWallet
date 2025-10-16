@@ -1,28 +1,55 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/api/api";
-import { Transaction } from "@/types/Transaction";
+// src/hooks/useTransactions.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api  from "@/api/api";
 
-async function fetchTransactions(): Promise<Transaction[]> {
-  const { data } = await api.get<Transaction[]>("/transactions");
-  return data;
+export interface Transaction {
+  id: number;
+  wallet_id: number;
+  symbol: string;
+  quantity: number;
+  price_usd: number;
+  type: "buy" | "swap" | "send";
+  timestamp: string;
 }
 
-export function useTransactions() {
-  return useQuery<Transaction[]>({
-    queryKey: ["transactions"],
-    queryFn: fetchTransactions,
+export interface CreateTransactionInput {
+  wallet_id: number;
+  symbol: string;
+  quantity: number;
+  price_usd: number;
+  type: "buy" | "swap" | "send";
+}
+
+export function useTransactions(walletId?: number) {
+  const queryClient = useQueryClient();
+
+  // GET /transactions?wallet_id=1
+  const transactionsQuery = useQuery<Transaction[]>({
+    queryKey: ["transactions", walletId],
+    queryFn: async () => {
+      const res = await api.get(`/transactions`, {
+        params: { wallet_id: walletId },
+      });
+      return res.data;
+    },
+    enabled: !!walletId,
   });
-}
 
-export function useCreateTransaction() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (transaction: Partial<Transaction>) => {
-      const { data } = await api.post<Transaction>("/transactions", transaction);
-      return data;
+  // POST /transactions
+  const createTransaction = useMutation({
+    mutationFn: async (data: CreateTransactionInput) => {
+      const res = await api.post(`/transactions`, data);
+      return res.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["transactions"] });
+      // Atualiza automaticamente o portfólio e transações
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
     },
   });
+
+  return {
+    ...transactionsQuery,
+    createTransaction,
+  };
 }

@@ -2,11 +2,11 @@ import LayoutDashboard from "@/components/layout/LayoutDashboard";
 import { Header } from "@/components/layout/Header";
 import { FooterActions } from "@/components/home/FooterActions";
 import { PortfolioDonutChart } from "@/components/home/PortfolioDonutChart";
-import { usePortfolioQuery } from "@/hooks/usePortfolioQuery";
+import { usePortfolio } from "@/hooks/usePortfolio";
 import   PortfolioTable   from "@/components/home/PortfolioTable";
 
 export default function Home() {
-	const { data: portfolio, isLoading, refetch } = usePortfolioQuery();
+	const { data: portfolio, isLoading, refetch } = usePortfolio();
 
 	return (
 		<div className="min-h-screen text-white flex flex-col">

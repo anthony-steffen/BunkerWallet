@@ -19,7 +19,7 @@ export interface PortfolioSummary {
   assets: Asset[];
 }
 
-export function usePortfolioQuery() {
+export function usePortfolio() {
   return useQuery<PortfolioSummary>({
     queryKey: ["portfolio"],
     queryFn: async () => {

@@ -15,11 +15,11 @@ export default function Transactions() {
       {/* Tabs de navegação */}
       <TransactionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className="mt-8 bg-base-100/10 rounded-2xl shadow-lg p-6 backdrop-blur-sm border border-base-300/20">
+      {/* <div className="bg-base-100/10 rounded-2xl shadow-lg p-6 backdrop-blur-sm border border-base-300/20 mx-auto"> */}
         {activeTab === "buy" && <BuyCryptoForm />}
         {activeTab === "swap" && <SwapCryptoForm />}
         {activeTab === "send" && <SendCryptoForm />}
-      </div>
+      {/* </div> */}
 
       <div className="mt-12">
         <TransactionHistory />
