@@ -1,151 +1,122 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/transactions/SwapCryptoForm.tsx
-import React, { useMemo, useState } from "react";
+import React, { useState, useMemo } from "react";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { useTopAssets } from "@/hooks/useAssets";
-import { useTransactions } from "@/hooks/useTransactions";
-import TransactionPreviewModal from "./TransactionPreviewModal";
-import { safeParse, applyFee } from "@/utils/math";
-import { formatCurrency, formatNumber } from "@/utils/format";
-import { toast } from "react-toastify";
 
 export default function SwapCryptoForm() {
-  const { data: portfolio = [] } = usePortfolio();
-  const { data: topAssets = [] } = useTopAssets();
-  const { createTransaction } = useTransactions(1);
+  const { data: portfolio } = usePortfolio();
+  const { data: topAssets } = useTopAssets();
+  const assets = React.useMemo(() => portfolio?.assets ?? [], [portfolio?.assets]);
 
-  const [fromSymbol, setFromSymbol] = useState<string>("");
-  const [toSymbol, setToSymbol] = useState<string>("");
-  const [fromQtyInput, setFromQtyInput] = useState<string>("");
-  const [usdInput, setUsdInput] = useState<string>(""); // optional: user specifies USD to spend
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [processing, setProcessing] = useState(false);
+  const [fromSymbol, setFromSymbol] = useState("");
+  const [toSymbol, setToSymbol] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [value, setValue] = useState("");
 
-  const fromAsset = useMemo(() => portfolio.find(p => p.symbol.toUpperCase() === fromSymbol.toUpperCase()), [fromSymbol, portfolio]);
-  const toAsset = useMemo(() => topAssets.find(t => t.symbol.toUpperCase() === toSymbol.toUpperCase()), [toSymbol, topAssets]);
+  const fromAsset = useMemo(
+    () =>
+      assets.find(
+        (a) => a.symbol.toLowerCase() === fromSymbol.toLowerCase()
+      ),
+    [fromSymbol, assets]
+  );
+
+  const toAsset = useMemo(
+    () =>
+      topAssets?.find(
+        (a: any) => a.symbol.toLowerCase() === toSymbol.toLowerCase()
+      ),
+    [toSymbol, topAssets]
+  );
 
   const fromPrice = fromAsset?.current_price ?? 0;
   const toPrice = toAsset?.current_price ?? 0;
 
-  const parsedFromQty = safeParse(fromQtyInput);
-  const parsedUsd = safeParse(usdInput);
-
-  // If user entered USD -> estimated toQuantity = USD / toPrice
-  const estimatedToQtyFromUsd = toPrice > 0 ? parsedUsd / toPrice : 0;
-
-  // If user entered fromQuantity -> USD value = fromQty * fromPrice; toQty = USD / toPrice
-  const usdFromFromQty = parsedFromQty * fromPrice;
-  const estimatedToQtyFromQty = toPrice > 0 ? usdFromFromQty / toPrice : 0;
-
-  // validation: cannot swap more than available in portfolio
-  const availableQty = fromAsset?.quantity ?? 0;
-  const willSpendQty = parsedFromQty > 0 ? parsedFromQty : (parsedUsd > 0 && fromPrice > 0 ? parsedUsd / fromPrice : 0);
-
-  const openPreview = () => {
-    if (!fromSymbol || !toSymbol) return toast.error("Selecione os ativos de origem e destino.");
-    if (willSpendQty <= 0) return toast.error("Informe quantidade ou valor válido.");
-    if (willSpendQty > availableQty) return toast.error("Saldo insuficiente.");
-    setPreviewOpen(true);
+  const handleQuantityChange = (q: string) => {
+    setQuantity(q);
+    const qty = parseFloat(q);
+    if (!isNaN(qty)) setValue((qty * fromPrice).toFixed(2));
   };
 
-  const onConfirm = async () => {
-    setProcessing(true);
-    try {
-      // finalize quantities: fromQty is willSpendQty; toQty estimated
-      const finalFromQty = willSpendQty;
-      const finalToQty = parsedFromQty > 0 ? estimatedToQtyFromQty : estimatedToQtyFromUsd;
-      // create sell (from) and buy (to)
-      await createTransaction.mutateAsync({
-        wallet_id: 1,
-        symbol: fromSymbol,
-        quantity: -finalFromQty,
-        price_usd: fromPrice,
-        type: "swap",
-      });
-      await createTransaction.mutateAsync({
-        wallet_id: 1,
-        symbol: toSymbol,
-        quantity: finalToQty,
-        price_usd: toPrice,
-        type: "swap",
-      });
-      toast.success(`Swap ${fromSymbol} → ${toSymbol} realizado`);
-      setFromSymbol(""); setToSymbol(""); setFromQtyInput(""); setUsdInput("");
-      setPreviewOpen(false);
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err?.message || "Erro ao executar swap");
-    } finally {
-      setProcessing(false);
-    }
+  const handleValueChange = (v: string) => {
+    setValue(v);
+    const val = parseFloat(v);
+    if (!isNaN(val) && fromPrice > 0)
+      setQuantity((val / fromPrice).toFixed(6));
   };
+
+  const estimatedToAmount =
+    !isNaN(parseFloat(value)) && toPrice > 0
+      ? (parseFloat(value) / toPrice).toFixed(6)
+      : "0";
 
   return (
-    <>
-      <form onSubmit={(e) => { e.preventDefault(); openPreview(); }} className="flex flex-col gap-4 max-w-md mx-auto bg-base-100/10 p-6 rounded-2xl border border-base-300/20">
-        <h2 className="text-lg font-semibold text-gray-100 text-center">Trocar Cripto</h2>
+    <div className="bg-base-100/20 p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto">
+      <h2 className="text-xl font-semibold mb-4 text-gray-100">Trocar Cripto</h2>
 
-        <select value={fromSymbol} onChange={(e) => { setFromSymbol(e.target.value); setFromQtyInput(""); setUsdInput(""); }} className="select select-bordered bg-base-200 text-gray-100">
-          <option value="">Ativo de origem</option>
-          {portfolio.map((p: any) => (
-            <option key={p.symbol} value={p.symbol}>{p.name} ({p.symbol})</option>
-          ))}
-        </select>
+      {/* From asset */}
+      <label className="block text-sm text-gray-400 mb-2">De</label>
+      <select
+        value={fromSymbol}
+        onChange={(e) => setFromSymbol(e.target.value)}
+        className="select select-bordered w-full mb-4 bg-base-200 text-gray-100"
+      >
+        <option value="">Selecione ativo de origem</option>
+        {assets.map((asset) => (
+          <option key={asset.symbol} value={asset.symbol}>
+            {asset.name} ({asset.symbol.toUpperCase()})
+          </option>
+        ))}
+      </select>
 
-        <select value={toSymbol} onChange={(e) => { setToSymbol(e.target.value); setFromQtyInput(""); setUsdInput(""); }} className="select select-bordered bg-base-200 text-gray-100">
-          <option value="">Ativo de destino</option>
-          {topAssets.map((t: any) => (
-            <option key={t.id} value={t.symbol.toUpperCase()}>{t.name} ({t.symbol.toUpperCase()})</option>
-          ))}
-        </select>
+      {/* To asset */}
+      <label className="block text-sm text-gray-400 mb-2">Para</label>
+      <select
+        value={toSymbol}
+        onChange={(e) => setToSymbol(e.target.value)}
+        className="select select-bordered w-full mb-4 bg-base-200 text-gray-100"
+      >
+        <option value="">Selecione ativo de destino</option>
+        {topAssets?.map((asset: any) => (
+          <option key={asset.symbol} value={asset.symbol}>
+            {asset.name} ({asset.symbol.toUpperCase()})
+          </option>
+        ))}
+      </select>
 
-        <input type="number" placeholder="Quantidade (origem)" className="input input-bordered bg-base-200 text-gray-100" value={fromQtyInput} onChange={(e) => setFromQtyInput(e.target.value)} disabled={!fromSymbol || !toSymbol} min="0" step="any" />
-
-        <input type="number" placeholder="Valor em USD (opcional)" className="input input-bordered bg-base-200 text-gray-100" value={usdInput} onChange={(e) => setUsdInput(e.target.value)} disabled={!fromSymbol || !toSymbol} min="0" step="any" />
-
-        <div className="text-sm text-gray-300 space-y-1">
-          {usdInput && toPrice > 0 && (
-            <div>
-              <span className="text-gray-400">Receberá (estimado):</span>{" "}
-              <span className="font-semibold text-cyan-400">{formatNumber(estimatedToQtyFromUsd)} {toSymbol}</span>
-            </div>
-          )}
-
-          {fromQtyInput && (
-            <div>
-              <span className="text-gray-400">Valor (USD):</span>{" "}
-              <span className="font-semibold text-yellow-400">${formatCurrency(usdFromFromQty)}</span>
-              <span className="ml-3 text-gray-400">Receberá (estimado):</span>{" "}
-              <span className="font-semibold text-cyan-400">{formatNumber(estimatedToQtyFromQty)} {toSymbol}</span>
-            </div>
-          )}
-
-          {fromSymbol && (
-            <div className="text-xs text-gray-500">Saldo disponível: {formatNumber(availableQty, 6)} {fromSymbol}</div>
-          )}
-        </div>
-
-        <div className="flex justify-end">
-          <button type="submit" className="btn bg-gradient-to-r from-cyan-400 to-purple-400 text-black" disabled={!fromSymbol || !toSymbol}>Pré-visualizar</button>
-        </div>
-      </form>
-
-      <TransactionPreviewModal
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        processing={processing}
-        onConfirm={onConfirm}
-        title={`Confirmar Swap ${fromSymbol} → ${toSymbol}`}
-        payload={{
-          typeLabel: "Swap",
-          symbol: `${fromSymbol} → ${toSymbol}`,
-          quantity: parsedFromQty > 0 ? parsedFromQty : (parsedUsd > 0 && fromPrice > 0 ? parsedUsd / fromPrice : 0),
-          priceUsd: fromPrice,
-          valueUsd: parsedFromQty > 0 ? usdFromFromQty : parsedUsd,
-          fee: applyFee(parsedFromQty > 0 ? usdFromFromQty : parsedUsd).fee,
-          netUsd: applyFee(parsedFromQty > 0 ? usdFromFromQty : parsedUsd).net,
-        }}
+      {/* Quantity & Value */}
+      <label className="block text-sm text-gray-400 mb-1">Quantidade</label>
+      <input
+        type="number"
+        value={quantity}
+        onChange={(e) => handleQuantityChange(e.target.value)}
+        placeholder="Ex: 0.005"
+        className="input input-bordered w-full mb-3 bg-base-200 text-gray-100"
       />
-    </>
+
+      <label className="block text-sm text-gray-400 mb-1">Valor (USD)</label>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => handleValueChange(e.target.value)}
+        placeholder="Ex: 150"
+        className="input input-bordered w-full mb-3 bg-base-200 text-gray-100"
+      />
+
+      {quantity && fromAsset && (
+        <span className="text-gray-400 text-xs block">
+          {quantity} {fromSymbol.toUpperCase()} ≈ ${value}
+        </span>
+      )}
+
+      {toAsset && value && (
+        <span className="text-gray-400 text-xs block mt-1">
+          Você receberá aproximadamente {estimatedToAmount}{" "}
+          {toSymbol.toUpperCase()}
+        </span>
+      )}
+
+      <button className="btn btn-primary w-full mt-6">Trocar</button>
+    </div>
   );
 }

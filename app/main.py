@@ -5,6 +5,8 @@ from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
+
 from app.routers import (
     auth_router,
     user_router,
@@ -12,48 +14,48 @@ from app.routers import (
     asset_router,
     transaction_router,
 )
-from app.seeders.seed_assets import seed_assets
-from datetime import datetime, timedelta
 
 load_dotenv()
+
+# ---- Configuração de logs ----
 logger = logging.getLogger("bunkerwallet")
 logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-
+# ---- Scheduler ----
 scheduler = BackgroundScheduler()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Lifespan handler: inicia o scheduler em background e agenda o job de seed.
-    - A primeira execução é adiada (next_run_time)
-    para evitar bloqueios na inicialização.
     """
     try:
         logger.info("Iniciando scheduler de background...")
 
-        # agenda job para rodar a cada 30 minutos, primeiro run em +30s
+        from app.seeders.seed_assets import seed_assets  # import seguro
+
         first_run = datetime.utcnow() + timedelta(seconds=30)
 
         scheduler.add_job(
-            seed_assets,  # callable (função importada)
+            seed_assets,
             "interval",
             minutes=30,
             id="seed_assets_job",
             replace_existing=True,
             max_instances=1,
-            next_run_time=first_run,  # ADIAR a primeira execução
+            coalesce=True,
+            next_run_time=first_run,
         )
 
         scheduler.start()
-        logger.info(
-            "Scheduler iniciado. Job seed_assets agendado para %s",
-            first_run.isoformat(),
-        )
+        logger.info(f"Scheduler iniciado. Próximo run: {first_run.isoformat()}")
     except Exception as e:
-        logger.exception("Erro iniciando scheduler: %s", e)
-        # Não interromper o app — logue e continue (se preferir, re-raise)
+        logger.exception(f"Erro iniciando scheduler: {e}")
 
     try:
         yield
@@ -66,6 +68,7 @@ async def lifespan(app: FastAPI):
             logger.exception("Erro ao desligar scheduler.")
 
 
+# ---- Inicialização do app ----
 app = FastAPI(title="BunkerWallet API", lifespan=lifespan)
 
 origins = ["http://localhost:5173"]
