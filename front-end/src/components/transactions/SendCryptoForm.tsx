@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 
 export default function SendCryptoForm() {
 const { data: portfolio, isLoading, error } = usePortfolio(1);
-console.log("📦 portfolio:", portfolio);
 
 
   const [selectedSymbol, setSelectedSymbol] = useState("");

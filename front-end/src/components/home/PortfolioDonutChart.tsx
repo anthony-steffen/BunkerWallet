@@ -23,7 +23,7 @@ const FALLBACK_COLORS = [
 ];
 
 export function PortfolioDonutChart({ data, total }: PortfolioDonutChartProps) {
-	console.log(data);
+
   return (
     <div className="relative flex flex-col items-center justify-center mt-10">
       <div className="relative w-[320px] h-[320px]">

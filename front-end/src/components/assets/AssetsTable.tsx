@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/assets/AssetsTable.tsx
 import React from "react";
-import MiniSparklineChart from "@/components/assets/MiniSparklineChart";
+// import MiniSparklineChart from "@/components/assets/MiniSparklineChart";
 
 interface Props {
   assets: any[];
@@ -23,6 +23,7 @@ export default function AssetsTable({ assets }: Props) {
       </thead>
       <tbody>
         {assets.map((coin: any, i) => {
+        console.log(coin);
           const isPositive = coin.price_change_percentage_24h >= 0;
           return (
             <tr
@@ -45,7 +46,7 @@ export default function AssetsTable({ assets }: Props) {
               <td className="text-right">${coin.market_cap.toLocaleString()}</td>
               <td className="text-right">${coin.total_volume.toLocaleString()}</td>
               <td className="w-[120px]">
-                <MiniSparklineChart data={coin.sparkline_in_7d.price} />
+                {/* <MiniSparklineChart data={coin.price_change_24h} /> */}
               </td>
             </tr>
           );

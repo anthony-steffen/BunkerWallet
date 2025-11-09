@@ -1,55 +1,29 @@
-// src/components/home/AssetPerformanceChart.tsx
-import React, { useMemo } from "react";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import type { PricePoint } from "@/utils/generatePriceHistory";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 
-interface Props {
-  points: PricePoint[];
-  strokeColor?: string;
-  height?: number;
-}
+export default function PortfolioDonutChart({ data }: { data: any[] }) {
+  if (!data || data.length === 0) {
+    return <div className="text-gray-400 text-center">Nenhum dado disponível</div>;
+  }
 
-const AssetPerformanceChart: React.FC<Props> = ({
-  points = [],
-  strokeColor = "#8884D8",
-  height = 56,
-}) => {
-  
-  // Ajuste da escala vertical
-  const domain = useMemo<[number, number]>(() => {
-    const vals = points.map((p) => p.price);
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const range = max - min || 0.5;
-    const pad = range * 0.3;
-    return [min - pad, max + pad];
-  }, [points]);
-  
-  if (!points || points.length === 0)
-    return <div className="text-gray-500 text-xs text-center italic">–</div>;
-  
   return (
-    <div style={{ width: "100%", minHeight: `${height}px`, height: `${height}px` }}>
+    <div className="w-full h-[300px]"> {/* altura explícita! */}
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={points} margin={{ top: 2, right: 6, left: 6, bottom: 2 }}>
-          <XAxis dataKey="date" hide />
-          <YAxis domain={domain} hide />
-          <Tooltip
-            wrapperStyle={{ zIndex: 9999 }}
-            formatter={(v: number) => [`$${v.toFixed(2)}`, "Price"]}
-          />
-          <Line
-            type="monotone"
-            dataKey="price"
-            stroke={strokeColor}
-            strokeWidth={2.5}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="percentage"
+            nameKey="symbol"
+            cx="50%"
+            cy="50%"
+            outerRadius="80%"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color || "#8884d8"} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
       </ResponsiveContainer>
     </div>
   );
-};
-
-export default React.memo(AssetPerformanceChart);
+}

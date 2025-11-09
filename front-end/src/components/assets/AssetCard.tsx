@@ -2,7 +2,7 @@
 // src/components/assets/AssetCard.tsx
 import React from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import MiniSparklineChart from "./MiniSparklineChart";
+// import MiniSparklineChart from "./MiniSparklineChart";
 
 interface Props {
   coin: any;
@@ -32,9 +32,9 @@ export default function AssetCard({ coin }: Props) {
       </div>
 
       {/* Middle: Gráfico */}
-      <div className="h-[15px]">
+      {/* <div className="h-[15px]">
         <MiniSparklineChart data={coin.sparkline_in_7d.price} />
-      </div>
+      </div> */}
 
       {/* Bottom: Dados principais */}
       <div className="flex items-center justify-between text-sm">

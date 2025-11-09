@@ -28,10 +28,8 @@ export function usePortfolio(walletId?: number) {
     queryKey: ["portfolio", walletId],
     queryFn: async () => {
       console.log("🚀 usePortfolio → Iniciando fetch...");
-      console.log("walletId recebido:", walletId);
 
       const walletsRes = await api.get("/wallets/");
-      console.log("🔍 /wallets/ response:", walletsRes.data);
 
       if (!walletsRes.data?.length)
         throw new Error("Nenhuma carteira encontrada");
@@ -42,10 +40,7 @@ export function usePortfolio(walletId?: number) {
 
       if (!wallet) throw new Error("Carteira não encontrada!");
 
-      console.log("🎯 Carteira usada:", wallet);
-
       const res = await api.get(`/wallets/${wallet.id}/portfolio`);
-      console.log("📊 /wallets/{id}/portfolio →", res.data);
 
       return res.data;
     },

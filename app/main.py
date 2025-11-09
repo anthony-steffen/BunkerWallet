@@ -29,6 +29,7 @@ if not logger.handlers:
 # ---- Scheduler ----
 scheduler = BackgroundScheduler()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -53,7 +54,9 @@ async def lifespan(app: FastAPI):
         )
 
         scheduler.start()
-        logger.info(f"Scheduler iniciado. Próximo run: {first_run.isoformat()}")
+        logger.info(
+            f"Scheduler iniciado. Próximo run: {first_run.isoformat()}"
+        )
     except Exception as e:
         logger.exception(f"Erro iniciando scheduler: {e}")
 
@@ -70,6 +73,15 @@ async def lifespan(app: FastAPI):
 
 # ---- Inicialização do app ----
 app = FastAPI(title="BunkerWallet API", lifespan=lifespan)
+
+
+# 🟡 Middleware para debug de CORS
+@app.middleware("http")
+async def debug_origin(request, call_next):
+    origin = request.headers.get("origin")
+    print(f"🌐 [CORS DEBUG] Request from origin: {origin}")
+    response = await call_next(request)
+    return response
 
 origins = ["http://localhost:5173"]
 app.add_middleware(

@@ -41,114 +41,58 @@ export default function PortfolioTable({ assets }: Props) {
 					<thead>
 						<tr className="text-gray-400 text-xs uppercase border-b border-base-300/30">
 							<th className="pb-3 text-left">Asset Name</th>
-							<th className="pb-3 text-right">Price</th>
-							<th className="pb-3 text-right">24H Change</th>
-							<th className="pb-3 text-center">3D Day Trend</th>
-							<th className="pb-3 text-right">Performance</th>
+							<th className="pb-3 text-center">Purcharge Price</th>
+							<th className="pb-3 text-right">Current Price</th>
 							<th className="pb-3 text-right">Balance</th>
-							<th className="pb-3 text-right">Value</th>
-							<th className="pb-3 text-right">Portfolio</th>
+							<th className="pb-3 text-right">24H Change</th>
+							<th className="pb-3 text-right">Performance</th>
 						</tr>
 					</thead>
 
 					<tbody>
 						{assets.map((asset) => {
-							const color = asset.color || getColorForSymbol(asset.symbol);
-							const perfTotal = asset.performance_pct ?? 0; // ganho total desde a compra
-							const perf24h = asset.performance_pct_24h ?? 0; // variação de mercado 24h
-							// const changeUsd = asset.change_24h_usd ?? 0;
-
-							console.log(asset.color);
-
-							// 🔁 histórico para o gráfico de linha
-							const trendPoints = generatePriceHistory(
-								asset.current_price,
-								perf24h,
-								3
-							);
-
 							return (
 								<tr
 									key={asset.symbol}
-									className="border-b border-base-300/10 hover:bg-base-100/20 transition">
-									{/* ASSET */}
-									<td className="py-3 flex items-center gap-3">
+									className="border-b border-base-300/10 hover:bg-base-100/20 transition"
+								>
+									{/* Nome do ativo */}
+									<td className="p-2 flex items-center gap-3">
 										<img
 											src={asset.image}
 											alt={asset.name}
-											className="w-7 h-7 rounded-full shadow-md"
+											className="w-8 h-8 rounded-full"
 										/>
 										<div>
-											<p className="font-semibold text-gray-100">
-												{asset.name}
-											</p>
+											<p className="font-semibold">{asset.name}</p>
 											<span className="text-xs text-gray-500">
 												{asset.symbol}
 											</span>
 										</div>
 									</td>
 
-									{/* PRICE */}
-									<td className="text-right text-gray-300">
+									{/* Preço de compra */}
+									<td className="p-2 text-center">
+										${asset.purchase_price?.toFixed(2) ?? "N/A"}
+									</td>
+
+									{/* Preço atual */}
+									<td className="p-2 text-right">
 										${asset.current_price.toFixed(2)}
 									</td>
 
-									{/* 24H CHANGE */}
-									<td
-										className={`text-right ${
-											perf24h >= 0 ? "text-green-400" : "text-red-400"
-										}`}>
-										<div className="flex items-center justify-end gap-1">
-											{perf24h >= 0 ? (
-												<TrendingUp size={14} />
-											) : (
-												<TrendingDown size={14} />
-											)}
-											<span>
-												{perf24h >= 0 ? "+" : "-"}
-												{Math.abs(perf24h).toFixed(2)}%
-											</span>
-										</div>
-									</td>
+									{/* Valor total */}
+									<td className="p-2 text-right">
+										${asset.value_usd.toFixed(2)}	
+									</td>		
 
-									{/* 3D TREND */}
-									<td className="px-4 py-3 w-[160px]">
-										<AssetPerformanceChart
-											points={trendPoints}
-											strokeColor={
-												asset.color || getColorForSymbol(asset.symbol)
-											}
-											height={56}
-										/>
-									</td>
-
-									{/* PERFORMANCE TOTAL (desde compra) */}
-									<td
-										className={`text-right ${
-											perfTotal >= 0 ? "text-green-400" : "text-red-400"
-										}`}>
-										{perfTotal >= 0 ? "+" : ""}
-										{perfTotal.toFixed(2)}%
-									</td>
-
-									{/* BALANCE */}
-									<td
-										className="text-right font-semibold"
-										style={{
-											color,
-											textShadow: `0 0 6px ${color}80`,
-										}}>
-										{asset.quantity.toFixed(2)}
-									</td>
-
-									{/* VALUE */}
-									<td className="text-right text-gray-100">
-										${asset.value_usd.toFixed(2)}
-									</td>
-
-									{/* PORTFOLIO */}
-									<td className="text-right text-gray-400">
-										{asset.percentage.toFixed(1)}%
+									{/* Variação 24h */}
+									<td className={`p-2 text-right ${(asset.performance_pct_24h ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+										{asset.performance_pct_24h !== undefined ? asset.performance_pct_24h.toFixed(2) : "N/A"}%
+									</td>	
+									{/* Performance total */}
+									<td className={`p-2 text-right ${(asset.performance_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+										{asset.performance_pct?.toFixed(2) ?? "N/A"}%
 									</td>
 								</tr>
 							);

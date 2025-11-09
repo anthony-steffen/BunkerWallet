@@ -6,11 +6,24 @@ from typing import List
 from app.db import get_db
 from app import schemas
 from app.crud import asset_crud
+from app.services.coingecko import get_top_assets_cached
 
 router = APIRouter(
     prefix="/assets",
     tags=["Assets"],
 )
+
+
+@router.get("/top")
+async def get_top_assets():
+    """
+    Retorna os 100 principais ativos de mercado (cacheado por 10 min)
+    """
+    try:
+        assets = get_top_assets_cached()
+        return assets
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/", response_model=schemas.AssetResponse)
