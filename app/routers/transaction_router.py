@@ -27,16 +27,32 @@ def create_transaction(
     )
 
 
+@router.post("/swap", response_model=List[schemas.TransactionResponse])
+def create_swap_transaction(
+    swap: schemas.SwapTransactionCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return transaction_crud.create_swap_transaction(
+        db=db, swap=swap, current_user=current_user
+    )
+
+
 @router.get("/", response_model=List[schemas.TransactionResponse])
 def list_transactions(
-    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+    wallet_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    return (
+    query = (
         db.query(models.Transaction)
         .join(models.Wallet)
         .filter(models.Wallet.user_id == current_user.id)
-        .all()
     )
+    if wallet_id is not None:
+        query = query.filter(models.Transaction.wallet_id == wallet_id)
+
+    return query.order_by(models.Transaction.timestamp.desc()).all()
 
 
 @router.get("/{transaction_id}", response_model=schemas.TransactionResponse)

@@ -116,6 +116,17 @@ class TransactionCreate(TransactionBase):
     pass
 
 
+class SwapTransactionCreate(BaseModel):
+    wallet_id: int
+    from_asset_id: int
+    to_asset_id: int
+    from_amount: float
+    from_price: float
+    to_amount: float
+    to_price: float
+    description: Optional[str] = None
+
+
 class TransactionResponse(TransactionBase):
     id: int
     wallet_id: int

@@ -67,6 +67,10 @@ def get_portfolio(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    wallet = db.get(models.Wallet, wallet_id)
+    if not wallet or wallet.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Wallet nao encontrada")
+
     return wallet_crud.get_portfolio_summary(db, wallet_id)
 
 

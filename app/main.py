@@ -13,6 +13,7 @@ from app.routers import (
     wallet_router,
     asset_router,
     transaction_router,
+    market_router,
 )
 
 load_dotenv()
@@ -97,6 +98,7 @@ app.include_router(user_router.router)
 app.include_router(wallet_router.router)
 app.include_router(asset_router.router)
 app.include_router(transaction_router.router)
+app.include_router(market_router.router)
 
 
 @app.get("/")

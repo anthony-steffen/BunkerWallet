@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 
 from decimal import Decimal
-from app.utils.coingecko import fetch_asset_price
 from app.utils.asset_colors import get_asset_color
+from app.services.market_data import market_data_service
 
 
 def create_wallet(db: Session, wallet: schemas.WalletCreate):
@@ -62,6 +62,13 @@ def get_portfolio_summary(db: Session, wallet_id: int):
                 rec["quantity"] -= amt
                 rec["total_cost"] -= amt * avg_price
 
+    symbols = [
+        rec["asset"].symbol
+        for rec in assets_map.values()
+        if rec["asset"] is not None
+    ]
+    live_prices = market_data_service.get_prices(symbols)
+
     assets_data = []
     total_balance = Decimal(0)
 
@@ -74,20 +81,21 @@ def get_portfolio_summary(db: Session, wallet_id: int):
             continue
 
         avg_price = (total_cost / qty) if qty != 0 else Decimal(0)
-        current_price = Decimal(asset.price or 0)
+        market_info = live_prices.get(asset.symbol.upper(), {})
+        market_price = market_info.get("price")
+        current_price = Decimal(str(market_price or asset.price or 0))
         current_value = qty * current_price
         total_balance += current_value
 
         # 🧩 Enriquecer com dados da CoinGecko
-        api_data = fetch_asset_price(asset.symbol)
         price_24h_ago = (
-            Decimal(api_data.get("price_24h_ago") or 0)
-            if api_data
+            Decimal(str(market_info.get("price_24h_ago") or 0))
+            if market_info
             else Decimal(0)
         )
         performance_24h = (
-            Decimal(api_data.get("performance_pct_24h") or 0)
-            if api_data
+            Decimal(str(market_info.get("change_pct_24h") or 0))
+            if market_info
             else Decimal(0)
         )
 
@@ -117,6 +125,7 @@ def get_portfolio_summary(db: Session, wallet_id: int):
                 "price_24h_ago": float(round(price_24h_ago, 4)),
                 "change_24h_usd": float(round(change_24h_usd, 2)),
                 "performance_pct_24h": float(round(performance_24h, 2)),
+                "last_price_update": market_info.get("last_updated_at"),
             }
         )
 

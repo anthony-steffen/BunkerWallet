@@ -110,6 +110,10 @@ def create_transaction(
         if tx_type == models.TransactionType.BUY:
             wa.balance = current_balance + amt
         elif tx_type == models.TransactionType.SELL:
+            if current_balance < amt:
+                raise HTTPException(
+                    status_code=400, detail="Saldo insuficiente para venda"
+                )
             wa.balance = current_balance - amt
             # Nota: política de permitir saldo negativo fica a seu critério.
             # Se quiser impedir, faça uma checagem aqui e
@@ -123,6 +127,11 @@ def create_transaction(
             if tx_type == models.TransactionType.DEPOSIT:
                 wa.balance = current_balance + amt
             else:
+                if current_balance < amt:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Saldo insuficiente para retirada",
+                    )
                 wa.balance = current_balance - amt
 
         # 8) refresh para garantir que db_tx atualize campos gerados
@@ -142,6 +151,105 @@ def create_transaction(
         db.rollback()
         raise HTTPException(
             status_code=500, detail=f"Erro ao criar transação: {e}"
+        )
+
+
+def create_swap_transaction(
+    db: Session,
+    swap: schemas.SwapTransactionCreate,
+    current_user: models.User,
+) -> list[models.Transaction]:
+    wallet = db.get(models.Wallet, swap.wallet_id)
+    if not wallet or wallet.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Wallet nao encontrada ou nao pertence ao usuario",
+        )
+
+    from_asset = db.get(models.Asset, swap.from_asset_id)
+    to_asset = db.get(models.Asset, swap.to_asset_id)
+    if not from_asset or not to_asset:
+        raise HTTPException(status_code=404, detail="Asset nao encontrado")
+    if from_asset.id == to_asset.id:
+        raise HTTPException(
+            status_code=400, detail="Selecione ativos diferentes para troca"
+        )
+
+    from_amount = Decimal(str(swap.from_amount))
+    to_amount = Decimal(str(swap.to_amount))
+    if from_amount <= 0 or to_amount <= 0:
+        raise HTTPException(
+            status_code=400, detail="Quantidades devem ser maiores que zero"
+        )
+
+    try:
+        from_wallet_asset = (
+            db.query(models.WalletAsset)
+            .filter(models.WalletAsset.wallet_id == swap.wallet_id)
+            .filter(models.WalletAsset.asset_id == swap.from_asset_id)
+            .with_for_update(of=models.WalletAsset)
+            .first()
+        )
+        if not from_wallet_asset or Decimal(
+            from_wallet_asset.balance or 0
+        ) < from_amount:
+            raise HTTPException(
+                status_code=400, detail="Saldo insuficiente para troca"
+            )
+
+        to_wallet_asset = (
+            db.query(models.WalletAsset)
+            .filter(models.WalletAsset.wallet_id == swap.wallet_id)
+            .filter(models.WalletAsset.asset_id == swap.to_asset_id)
+            .with_for_update(of=models.WalletAsset)
+            .first()
+        )
+        if not to_wallet_asset:
+            to_wallet_asset = models.WalletAsset(
+                wallet_id=swap.wallet_id,
+                asset_id=swap.to_asset_id,
+                balance=Decimal(0),
+            )
+            db.add(to_wallet_asset)
+            db.flush()
+
+        sell_tx = models.Transaction(
+            wallet_id=swap.wallet_id,
+            asset_id=swap.from_asset_id,
+            amount=from_amount,
+            price=Decimal(str(swap.from_price)),
+            type=models.TransactionType.SELL,
+            description=swap.description or "Troca - venda",
+        )
+        buy_tx = models.Transaction(
+            wallet_id=swap.wallet_id,
+            asset_id=swap.to_asset_id,
+            amount=to_amount,
+            price=Decimal(str(swap.to_price)),
+            type=models.TransactionType.BUY,
+            description=swap.description or "Troca - compra",
+        )
+
+        from_wallet_asset.balance = (
+            Decimal(from_wallet_asset.balance or 0) - from_amount
+        )
+        to_wallet_asset.balance = (
+            Decimal(to_wallet_asset.balance or 0) + to_amount
+        )
+
+        db.add_all([sell_tx, buy_tx])
+        db.commit()
+        db.refresh(sell_tx)
+        db.refresh(buy_tx)
+        return [sell_tx, buy_tx]
+
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao executar troca: {e}"
         )
 
 
