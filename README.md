@@ -65,6 +65,65 @@ Para conferir se o container subiu:
 docker compose ps
 ```
 
+### Se o Docker nao funcionar no Windows
+
+No Windows, o Docker Desktop precisa estar instalado, aberto e com o daemon
+iniciado antes de rodar `docker compose`.
+
+Checklist rapido:
+
+1. Abra o Docker Desktop pelo menu iniciar.
+2. Aguarde o status ficar como `Docker Desktop is running`.
+3. Feche e abra novamente o VS Code depois de instalar/abrir o Docker.
+4. No terminal do VS Code, teste:
+
+```powershell
+docker --version
+docker compose version
+docker info
+```
+
+Se `docker` nao for reconhecido, adicione este caminho ao `Path` do Windows:
+
+```text
+C:\Program Files\Docker\Docker\resources\bin
+```
+
+Depois reinicie o VS Code.
+
+Se o Docker Desktop estiver instalado, mas o servico estiver parado, abra um
+PowerShell como administrador e execute:
+
+```powershell
+Start-Service com.docker.service
+```
+
+Se o Docker pedir WSL 2, rode no PowerShell como administrador:
+
+```powershell
+wsl --install
+wsl --update
+```
+
+Depois reinicie o Windows e abra o Docker Desktop novamente.
+
+### Alternativa sem Docker
+
+Se preferir testar sem Docker, instale o PostgreSQL localmente e crie o banco e
+usuario usados pelo projeto:
+
+```sql
+CREATE USER wallet_user WITH PASSWORD 'wallet_pass';
+CREATE DATABASE wallet_db OWNER wallet_user;
+GRANT ALL PRIVILEGES ON DATABASE wallet_db TO wallet_user;
+```
+
+Mantenha o `.env` com:
+
+```env
+DATABASE_URL=postgresql+psycopg2://wallet_user:wallet_pass@localhost:5432/wallet_db
+```
+
 ## 4. Preparar o backend
 
 Crie e ative um ambiente virtual.
