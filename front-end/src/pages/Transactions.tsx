@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TransactionTabs from "@/components/transactions/TransactionTabs";
+import type { TransactionTab } from "@/components/transactions/TransactionTabs";
 import BuyCryptoForm from "@/components/transactions/BuyCryptoForm";
+import SellCryptoForm from "@/components/transactions/SellCryptoForm";
 import SwapCryptoForm from "@/components/transactions/SwapCryptoForm";
 import SendCryptoForm from "@/components/transactions/SendCryptoForm";
 import TransactionHistory from "@/components/transactions/TransactionHistory";
 
 export default function Transactions() {
-  const [activeTab, setActiveTab] = useState<"buy" | "swap" | "send">("buy");
+  const [activeTab, setActiveTab] = useState<TransactionTab>("buy");
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-base-200 text-gray-100 p-6 lg:p-10">
-      <h1 className="text-3xl font-bold mb-6 text-yellow-400 text-center">Transações</h1>
+    <div className="flex min-h-screen w-full flex-col bg-base-200 p-6 text-gray-100 lg:p-10">
+      <h1 className="mb-6 text-center text-3xl font-bold text-yellow-400">
+        Transacoes
+      </h1>
 
-      {/* Tabs de navegação */}
       <TransactionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* <div className="bg-base-100/10 rounded-2xl shadow-lg p-6 backdrop-blur-sm border border-base-300/20 mx-auto"> */}
+      <div className="mt-6">
         {activeTab === "buy" && <BuyCryptoForm />}
+        {activeTab === "sell" && <SellCryptoForm />}
         {activeTab === "swap" && <SwapCryptoForm />}
         {activeTab === "send" && <SendCryptoForm />}
-      {/* </div> */}
+      </div>
 
       <div className="mt-12">
         <TransactionHistory />

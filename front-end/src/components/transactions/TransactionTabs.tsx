@@ -1,30 +1,32 @@
-import React from "react";
-import { Wallet, RefreshCcw, Send } from "lucide-react";
+import { ArrowDownUp, Send, TrendingDown, Wallet } from "lucide-react";
+import type { ReactNode } from "react";
+
+export type TransactionTab = "buy" | "sell" | "swap" | "send";
 
 interface Props {
-  activeTab: "buy" | "swap" | "send";
-  setActiveTab: (tab: "buy" | "swap" | "send") => void;
+  activeTab: TransactionTab;
+  setActiveTab: (tab: TransactionTab) => void;
 }
 
-const TransactionTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
-  const tabs = [
-    { id: "buy", label: "Buy", icon: <Wallet size={18} /> },
-    { id: "swap", label: "Swap", icon: <RefreshCcw size={18} /> },
-    { id: "send", label: "Send", icon: <Send size={18} /> },
+export default function TransactionTabs({ activeTab, setActiveTab }: Props) {
+  const tabs: Array<{ id: TransactionTab; label: string; icon: ReactNode }> = [
+    { id: "buy", label: "Compra", icon: <Wallet size={18} /> },
+    { id: "sell", label: "Venda", icon: <TrendingDown size={18} /> },
+    { id: "swap", label: "Troca", icon: <ArrowDownUp size={18} /> },
+    { id: "send", label: "Envio", icon: <Send size={18} /> },
   ];
 
   return (
-    <div className="flex justify-center gap-4">
+    <div className="flex flex-wrap justify-center gap-3">
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => setActiveTab(tab.id as "buy" | "swap" | "send")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all font-medium
-            ${
-              activeTab === tab.id
-                ? "bg-yellow-400 text-gray-900 shadow-md border-1 border-white "
-                : "bg-base-300/70 text-gray-400 hover:text-white hover:bg-base-300/60 border-1 border-base-content/20"
-            }`}
+          onClick={() => setActiveTab(tab.id)}
+          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+            activeTab === tab.id
+              ? "bg-yellow-400 text-gray-900 shadow-md"
+              : "bg-base-300/70 text-gray-400 hover:bg-base-300/60 hover:text-white"
+          }`}
         >
           {tab.icon}
           {tab.label}
@@ -32,6 +34,4 @@ const TransactionTabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
       ))}
     </div>
   );
-};
-
-export default TransactionTabs;
+}
