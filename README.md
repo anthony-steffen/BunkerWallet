@@ -1,140 +1,206 @@
-<h1 align="center">💰 BunkerWallet</h1>
+# BunkerWallet
 
-<p align="center">
-  <b>Gerencie suas carteiras de ativos blockchain com segurança e praticidade</b> 🚀
-</p>
+BunkerWallet e uma carteira digital para acompanhar criptoativos, transacoes e
+saldo de portfolio com precos atualizados por API de mercado.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/python-3.11%2B-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi" alt="FastAPI">
-  <img src="https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-</p>
+O projeto e dividido em duas partes:
 
----
+- Backend: FastAPI, SQLAlchemy, Alembic e PostgreSQL.
+- Frontend: React, TypeScript, Vite, React Query e Recharts.
 
-## ✨ Sobre o projeto
+## Funcionalidades atuais
 
-O **BunkerWallet** é uma aplicação em **Python + FastAPI** que permite:
+- Cadastro e login de usuarios.
+- Criacao de carteiras por usuario.
+- Cadastro/listagem de ativos.
+- Compra, venda, troca e envio/retirada de criptoativos.
+- Historico de transacoes.
+- Balanco de portfolio.
+- Lista de mercado com precos de criptoativos.
+- Integracao com CoinGecko para precos atuais.
+- Endpoint WebSocket para stream de precos em tempo quase real.
 
-- 👤 Cadastro de usuários  
-- 💼 Criação de carteiras vinculadas a cada usuário  
-- 🪙 Registro e gerenciamento de ativos (BTC, ETH, USDT...)  
-- 💹 Histórico de transações e saldos em tempo real  
-- 📊 Integração futura com APIs de mercado (CoinGecko, etc.)  
+## Requisitos
 
----
+Antes de rodar, instale:
 
-## 🛠️ Tecnologias utilizadas
+- Python 3.11 ou superior.
+- Node.js 20 ou superior.
+- Docker Desktop.
+- Git.
 
-- 🐍 **Python 3.11+**  
-- ⚡ **FastAPI** (Framework web assíncrono e rápido)  
-- 🗄️ **PostgreSQL + Docker** (Banco de dados)  
-- 🏗️ **SQLAlchemy** (ORM para mapear tabelas)  
-- 🔄 **Alembic** (Controle de migrations)  
-- 🔐 **Passlib (bcrypt)** (Hash de senhas)  
-- 🧾 **Pydantic v2** (Validação e tipagem dos dados)
+## 1. Clonar o projeto
 
----
-
-## ⚙️ Configuração do ambiente
-
-### 1. Clonar o repositório
-
-bash
-git clone <https://github.com/seu-usuario/BunkerWallet.git>
+```bash
+git clone <url-do-repositorio>
 cd BunkerWallet
+```
 
-### 2. Criar ambiente virtual
+## 2. Criar o arquivo `.env`
 
-python -m venv .venv
+Crie um arquivo `.env` na raiz do projeto:
 
-### Ativar ambiente
-
-# Windows
-
-source .venv/Scripts/activate
-
-# Linux/MacOS
-
-source .venv/bin/activate
-
-# VScode gitBash
-
-source .venv/bin/activate
-
-### 3. Instalar dependências
-
-pip install -r requirements.txt
-
-### 4. Configurar banco de dados
-
-Crie um arquivo .env na raiz do projeto com:
+```env
+POSTGRES_USER=wallet_user
+POSTGRES_PASSWORD=wallet_pass
+POSTGRES_DB=wallet_db
+HOST_DB_PORT=5432
 
 DATABASE_URL=postgresql+psycopg2://wallet_user:wallet_pass@localhost:5432/wallet_db
+SECRET_KEY=troque-esta-chave-em-producao
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
 
-### 5. Rodar migrations
+## 3. Subir o banco de dados
 
+Na raiz do projeto, execute:
+
+```bash
+docker compose up -d db
+```
+
+Para conferir se o container subiu:
+
+```bash
+docker compose ps
+```
+
+## 4. Preparar o backend
+
+Crie e ative um ambiente virtual.
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Git Bash, Linux ou macOS:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Instale as dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+Rode as migrations:
+
+```bash
 alembic upgrade head
+```
 
-### 6. Subir a API
+Popule a tabela de ativos com dados da CoinGecko:
 
+```bash
+python -m app.seeders.seed_assets
+```
+
+Observacao: a API tambem agenda uma atualizacao de ativos em background depois
+que o servidor sobe, mas rodar o seeder manualmente deixa o teste inicial mais
+previsivel.
+
+## 5. Rodar a API
+
+Com o ambiente virtual ativo:
+
+```bash
 uvicorn app.main:app --reload --port 8000
+```
 
-Agora acesse no navegador:
+Links uteis:
 
-🌍 API Root → <http://127.0.0.1:8000/>
+- API: `http://127.0.0.1:8000/`
+- Swagger: `http://127.0.0.1:8000/docs`
+- Precos de mercado: `http://127.0.0.1:8000/market/prices?symbols=BTC,ETH,SOL`
+- Historico de mercado: `http://127.0.0.1:8000/market/history/BTC?days=7`
 
-📖 Swagger Docs → <http://127.0.0.1:8000/docs>
+## 6. Preparar o frontend
 
-📌 Endpoints iniciais
-👤 Usuários
+Abra outro terminal:
 
-POST /users/ → Criar usuário
+```bash
+cd BunkerWallet/front-end
+npm install
+npm run dev
+```
 
-{
-  "name": "Anthony",
-  "email": "<anthony@example.com>",
-  "password": "123456"
-}
+O Vite deve abrir em:
 
-GET /users/ → Listar usuários
+```text
+http://localhost:5173
+```
 
-💼 Carteiras
+O frontend esta configurado para consumir a API em `http://localhost:8000`.
 
-POST /wallets/ → Criar carteira
+## 7. Fluxo recomendado para testar
 
-{
-  "name": "Carteira BTC",
-  "user_id": 1
-}
+1. Acesse `http://localhost:5173/register`.
+2. Crie uma conta.
+3. Faca login.
+4. Crie uma carteira pelo Swagger ou por uma chamada HTTP autenticada.
+5. Use a tela de transacoes para registrar compra, venda, troca ou envio.
+6. Abra a Home para ver saldo, grafico e tabela do portfolio.
+7. Abra a tela de ativos para acompanhar precos de mercado.
 
-GET /wallets/{user_id} → Listar carteiras de um usuário
+### Criar a primeira carteira pela API
 
-## 📜 Roadmap -BackEnd
+Depois do login, copie o token retornado em `/auth/login` e use no Swagger pelo
+botao `Authorize`, ou faca uma chamada como esta:
 
-- [x] Configuração inicial do projeto  
-- [x] Banco de dados PostgreSQL + Alembic  
-- [x] CRUD de usuários  
-- [x] CRUD de carteiras  
-- [x] CRUD de ativos  
-- [x] CRUD de transações  
-- [x] Dashboard com saldos e histórico  
-- [x] Integração com APIs de preços  
+```bash
+curl -X POST http://127.0.0.1:8000/wallets/ \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Minha Carteira\",\"description\":\"Carteira de testes\"}"
+```
 
-## 📜 Roadmap -FrontEnd
+Sem uma carteira criada, as telas de portfolio e transacoes nao terao onde
+registrar as operacoes.
 
-- [ ] Registro de usuário
-- [ ] Login e altenticação de usuário
-- [ ] Cadastro de carteira
-- [ ] Cadastro de ativo
-- [ ] Listagem de transações
-- [ ] Listagem de saldos
-- [ ] Listagem de histórico de transações
+## 8. Comandos uteis
 
-🛡️ Licença
+Backend:
 
-Este projeto está sob a licença MIT.
-Sinta-se livre para usar, estudar e contribuir 🤝
+```bash
+uvicorn app.main:app --reload --port 8000
+alembic upgrade head
+python -m app.seeders.seed_assets
+```
 
----
+Frontend:
+
+```bash
+cd front-end
+npm run dev
+npm run build
+npm run lint
+```
+
+Banco:
+
+```bash
+docker compose up -d db
+docker compose logs -f db
+docker compose down
+```
+
+## Observacoes para interessados em testar
+
+- A integracao de mercado usa a API publica da CoinGecko, portanto pode sofrer
+  limite de requisicoes.
+- O WebSocket interno entrega atualizacoes periodicas, nao ticks de exchange em
+  milissegundos.
+- O frontend local espera backend em `localhost:8000` e Vite em
+  `localhost:5173`.
+- A criacao de carteira ainda e mais direta pelo Swagger/API; esse fluxo pode
+  virar uma tela dedicada em uma proxima melhoria.
+
+## Licenca
+
+Projeto sob licenca MIT.
