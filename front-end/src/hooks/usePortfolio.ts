@@ -15,6 +15,7 @@ export interface Asset {
   price_24h_ago?: number;
   change_24h_usd?: number;
   performance_pct_24h?: number;
+  last_price_update?: string;
   percentage: number;
 }
 
