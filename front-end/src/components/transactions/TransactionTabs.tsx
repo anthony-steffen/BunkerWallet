@@ -17,15 +17,15 @@ export default function TransactionTabs({ activeTab, setActiveTab }: Props) {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div className="flex flex-wrap justify-center gap-2 rounded-lg bg-base-200/70 p-2">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
             activeTab === tab.id
-              ? "bg-yellow-400 text-gray-900 shadow-md"
-              : "bg-base-300/70 text-gray-400 hover:bg-base-300/60 hover:text-white"
+              ? "bg-primary text-primary-content shadow-sm"
+              : "text-base-content/60 hover:bg-base-100 hover:text-base-content"
           }`}
         >
           {tab.icon}

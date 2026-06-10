@@ -1,7 +1,8 @@
- export interface Wallet {
+export interface Wallet {
   id: number;
   name: string;
-  description: string;
-  image: string;
-  balance: number;
+  description?: string | null;
+  user_id?: number;
+  created_at?: string;
+  balance?: number | null;
 }

@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/secureRoutes/ProtectedRoute";
 import Home from "./pages/Home";
 import Assets from "./pages/Assets";
 import Transactions from "./pages/Transactions";
+import Wallets from "./pages/Wallets";
 // import NavigationBar from "./components/NavigationBar";
 
 export default function App() {
@@ -31,6 +32,14 @@ export default function App() {
 					element={
 						<ProtectedRoute isAllowed={!!token}>
 							<Assets />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="/wallets"
+					element={
+						<ProtectedRoute isAllowed={!!token}>
+							<Wallets />
 						</ProtectedRoute>
 					}
 				/>

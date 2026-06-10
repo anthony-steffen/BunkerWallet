@@ -1,100 +1,123 @@
 import { useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogIn, Moon, Shield, Sun } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
-import { LogIn } from "lucide-react";
-import { Shield, CircleDollarSign } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Login() {
-	const login = useLogin();
-	const navigate = useNavigate();
+  const login = useLogin();
+  const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		login.mutate(
-			{ email, password },
-			{
-				onSuccess: () => {
-					console.log("✅ Login realizado, redirecionando...");
-					navigate("/home");
-				},
-			}
-		);
-	}
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    login.mutate(
+      { email, password },
+      {
+        onSuccess: () => navigate("/home", { replace: true }),
+      }
+    );
+  }
 
-	return (
-		<div className="card w-full max-w-sm max-h-full backdrop-blur-lg mx-auto mt-20  p-2 ">
-			<div className="card-body">
-				{/* Header */}
-				<div className="flex items-center justify-center gap-2">
-					<div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 shadow-lg">
-						<Shield size={28} className="text-gray-900" />
-						<CircleDollarSign
-							size={14}
-							className="absolute bottom-1 right-1 text-gray-900"
-						/>
-					</div>
-					<h1 className="text-2xl font-bold text-yellow-400">BunkerWallet</h1>
-				</div>
-				<p className="text-center text-gray-400 text-sm">
-					Faça login para acessar sua conta
-				</p>
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-base-200 px-4 py-10 text-base-content">
+      <button
+        className="btn btn-ghost btn-square fixed right-5 top-5"
+        onClick={toggleTheme}
+        title="Alternar tema"
+      >
+        {theme === "bunker-dark" ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
 
-				{/* Form */}
-				<form onSubmit={handleSubmit} className="space-y-4 mt-6">
-					<div>
-						<input
-							type="email"
-							placeholder="Digite seu email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							className="input input-bordered w-full bg-gray-900/60 text-gray-200 border-gray-700 focus:border-yellow-400"
-							required
-						/>
-					</div>
-					<div>
-						<input
-							type="password"
-							placeholder="Digite sua senha"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							className="input input-bordered w-full bg-gray-900/60 text-gray-200 border-gray-700 focus:border-yellow-400"
-							required
-						/>
-					</div>
+      <section className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-2xl lg:grid-cols-[1fr_420px]">
+        <div className="hidden bg-neutral p-10 text-neutral-content lg:flex lg:flex-col lg:justify-between">
+          <div>
+            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-lg bg-secondary text-secondary-content">
+              <Shield size={24} />
+            </div>
+            <h1 className="max-w-md text-4xl font-semibold leading-tight">
+              Controle sua carteira cripto com precos em tempo quase real.
+            </h1>
+            <p className="mt-4 max-w-md text-sm text-neutral-content/70">
+              Registre compras, vendas, trocas e acompanhe saldo, historico e
+              performance em uma experiencia simples de operar.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="rounded-lg bg-white/10 p-3">Portfolio</div>
+            <div className="rounded-lg bg-white/10 p-3">Mercado</div>
+            <div className="rounded-lg bg-white/10 p-3">Transacoes</div>
+          </div>
+        </div>
 
-					<button
-						type="submit"
-						className={`btn w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl shadow-md border-none ${
-							login.isPending ? "loading" : ""
-						}`}
-						disabled={login.isPending}>
-						{login.isPending ? (
-							"Entrando..."
-						) : (
-							<span className="flex items-center gap-2">
-								<LogIn size={18} /> Entrar
-							</span>
-						)}
-					</button>
-				</form>
+        <div className="p-6 sm:p-10">
+          <div className="mb-8">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary/15 text-secondary lg:hidden">
+              <Shield size={22} />
+            </div>
+            <h2 className="text-2xl font-semibold">Entrar na BunkerWallet</h2>
+            <p className="mt-1 text-sm text-base-content/60">
+              Acesse sua carteira para continuar.
+            </p>
+          </div>
 
-				{login.isError && (
-					<div className="alert alert-error mt-4 rounded-xl">
-						<span>❌ Erro ao autenticar. Verifique suas credenciais.</span>
-					</div>
-				)}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="form-control">
+              <span className="label-text mb-1">Email</span>
+              <input
+                type="email"
+                placeholder="voce@email.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="input input-bordered"
+                required
+              />
+            </label>
+            <label className="form-control">
+              <span className="label-text mb-1">Senha</span>
+              <input
+                type="password"
+                placeholder="Sua senha"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="input input-bordered"
+                required
+              />
+            </label>
 
-				{/* Link de registro */}
-				<p className="text-center mt-6 text-sm text-gray-400">
-					Não tem conta?{" "}
-					<a href="/register" className="text-yellow-400 hover:underline">
-						Criar conta
-					</a>
-				</p>
-			</div>
-		</div>
-	);
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={login.isPending}
+            >
+              {login.isPending ? (
+                "Entrando..."
+              ) : (
+                <span className="flex items-center gap-2">
+                  <LogIn size={18} /> Entrar
+                </span>
+              )}
+            </button>
+          </form>
+
+          {login.isError && (
+            <div className="alert alert-error mt-4">
+              <span>Erro ao autenticar. Verifique email e senha.</span>
+            </div>
+          )}
+
+          <p className="mt-6 text-center text-sm text-base-content/60">
+            Nao tem conta?{" "}
+            <Link to="/register" className="font-medium text-primary hover:underline">
+              Criar conta
+            </Link>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
 }
