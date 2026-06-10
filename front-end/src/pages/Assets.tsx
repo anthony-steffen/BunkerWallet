@@ -12,7 +12,10 @@ export default function AssetsPage() {
 	const [search, setSearch] = useState("");
 	const { refetch } = usePortfolio();
 	const { data: topAssets = [], isLoading, isError } = useTopAssets();
-	const streamSymbols = topAssets.slice(0, 25).map((coin: any) => coin.symbol);
+	const streamSymbols = useMemo(
+		() => topAssets.slice(0, 25).map((coin: any) => coin.symbol),
+		[topAssets]
+	);
 	const { prices, isLive } = useMarketStream(streamSymbols);
 
 	const liveAssets = useMemo(

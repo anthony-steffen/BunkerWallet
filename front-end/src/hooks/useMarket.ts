@@ -21,7 +21,8 @@ function normalizeSymbols(symbols: string[]) {
   return Array.from(
     new Set(
       symbols
-        .map((symbol) => symbol.trim().toUpperCase())
+        .map((symbol) => String(symbol ?? "").trim().toUpperCase())
+        .filter((symbol) => /^[A-Z0-9_]+$/.test(symbol))
         .filter(Boolean)
     )
   ).sort();
@@ -68,16 +69,14 @@ export function useMarketStream(
 ) {
   const queryClient = useQueryClient();
   const symbolKey = normalizeSymbols(symbols).join(",");
-  const normalized = useMemo(
-    () => (symbolKey ? symbolKey.split(",") : []),
-    [symbolKey]
-  );
   const [prices, setPrices] = useState<MarketPricesMap>({});
   const [isLive, setIsLive] = useState(false);
   const [lastMessageAt, setLastMessageAt] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!normalized.length) {
+    const streamSymbols = symbolKey ? symbolKey.split(",") : [];
+
+    if (!streamSymbols.length) {
       setPrices({});
       setIsLive(false);
       return;
@@ -85,7 +84,7 @@ export function useMarketStream(
 
     const ws = new WebSocket(
       `${getWsBaseUrl()}/market/ws?symbols=${encodeURIComponent(
-        normalized.join(",")
+        streamSymbols.join(",")
       )}&currency=${currency}&interval=${interval}`
     );
 
@@ -105,7 +104,7 @@ export function useMarketStream(
       setPrices(payload.prices ?? {});
       setLastMessageAt(new Date().toISOString());
       queryClient.setQueryData(
-        marketQueryKey(normalized, currency),
+        marketQueryKey(streamSymbols, currency),
         payload.prices ?? {}
       );
     };
@@ -113,7 +112,7 @@ export function useMarketStream(
     return () => {
       ws.close();
     };
-  }, [currency, interval, normalized, queryClient, symbolKey]);
+  }, [currency, interval, queryClient, symbolKey]);
 
   return { prices, isLive, lastMessageAt };
 }

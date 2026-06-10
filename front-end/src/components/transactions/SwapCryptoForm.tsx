@@ -16,14 +16,6 @@ export default function SwapCryptoForm() {
   const { data: portfolio } = usePortfolio(walletId);
   const { data: assets = [] } = useAssets();
   const portfolioAssets = useMemo(() => portfolio?.assets ?? [], [portfolio?.assets]);
-  const symbols = useMemo(
-    () =>
-      Array.from(
-        new Set([...portfolioAssets.map((asset) => asset.symbol), ...assets.map((asset) => asset.symbol)])
-      ),
-    [assets, portfolioAssets]
-  );
-  const { prices } = useMarketStream(symbols);
   const { createSwap } = useTransactions(walletId);
 
   const [fromSymbol, setFromSymbol] = useState("");
@@ -43,6 +35,11 @@ export default function SwapCryptoForm() {
     () => assets.find((asset) => asset.id === Number(toAssetId)),
     [assets, toAssetId]
   );
+  const streamSymbols = useMemo(
+    () => [fromSymbol, toAsset?.symbol ?? ""].filter(Boolean),
+    [fromSymbol, toAsset?.symbol]
+  );
+  const { prices } = useMarketStream(streamSymbols);
 
   const fromLive = fromSymbol ? prices[fromSymbol.toUpperCase()] : undefined;
   const toLive = toAsset ? prices[toAsset.symbol.toUpperCase()] : undefined;

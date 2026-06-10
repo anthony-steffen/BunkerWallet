@@ -13,7 +13,6 @@ export default function BuyCryptoForm() {
   const { data: wallets = [] } = useWallets();
   const walletId = wallets[0]?.id;
   const { data: assets = [], isLoading } = useAssets();
-  const { prices } = useMarketStream(assets.map((asset) => asset.symbol));
   const { createTransaction } = useTransactions(walletId);
 
   const [assetId, setAssetId] = useState<number | "">("");
@@ -27,9 +26,11 @@ export default function BuyCryptoForm() {
     () => assets.find((asset) => asset.id === Number(assetId)),
     [assetId, assets]
   );
-  const live = selected ? prices[selected.symbol.toUpperCase()] : undefined;
+  const selectedSymbol = selected?.symbol.toUpperCase() ?? "";
+  const { prices } = useMarketStream(selectedSymbol ? [selectedSymbol] : []);
+  const live = selectedSymbol ? prices[selectedSymbol] : undefined;
   const price = live?.price ?? selected?.price ?? 0;
-  const symbol = selected?.symbol.toUpperCase() ?? "";
+  const symbol = selectedSymbol;
 
   const qty = safeParse(quantityInput);
   const val = safeParse(valueInput);

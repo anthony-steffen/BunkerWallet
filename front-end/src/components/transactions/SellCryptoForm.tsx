@@ -16,7 +16,11 @@ export default function SellCryptoForm() {
   const { data: portfolio } = usePortfolio(walletId);
   const { data: assets = [] } = useAssets();
   const portfolioAssets = useMemo(() => portfolio?.assets ?? [], [portfolio?.assets]);
-  const { prices } = useMarketStream(portfolioAssets.map((asset) => asset.symbol));
+  const streamSymbols = useMemo(
+    () => portfolioAssets.map((asset) => asset.symbol),
+    [portfolioAssets]
+  );
+  const { prices } = useMarketStream(streamSymbols);
   const { createTransaction } = useTransactions(walletId);
 
   const [symbol, setSymbol] = useState("");

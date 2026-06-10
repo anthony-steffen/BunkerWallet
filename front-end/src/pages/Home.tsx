@@ -1,4 +1,5 @@
 import LayoutDashboard from "@/components/layout/LayoutDashboard";
+import { useMemo } from "react";
 import { Header } from "@/components/layout/Header";
 import { FooterActions } from "@/components/home/FooterActions";
 import { PortfolioDonutChart } from "@/components/home/PortfolioDonutChart";
@@ -9,7 +10,10 @@ import { asNumber } from "@/utils/format";
 
 export default function Home() {
 	const { data: portfolio, isLoading, refetch } = usePortfolio();
-	const symbols = portfolio?.assets.map((asset) => asset.symbol) ?? [];
+	const symbols = useMemo(
+		() => portfolio?.assets.map((asset) => asset.symbol) ?? [],
+		[portfolio?.assets]
+	);
 	const { prices, isLive, lastMessageAt } = useMarketStream(symbols);
 
 	const liveAssets = (portfolio?.assets ?? []).map((asset) => {
