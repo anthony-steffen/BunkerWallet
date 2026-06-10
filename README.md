@@ -19,6 +19,18 @@ acompanhar saldo, historico, graficos e precos de mercado em tempo quase real.
 No Windows, abra o Docker Desktop antes de iniciar o banco. O comando
 `docker info` deve responder sem erro.
 
+No Windows, prefira o Python instalado pelo site oficial (`python.org`) e nao o
+atalho da Microsoft Store. Depois de instalar, o comando abaixo deve funcionar:
+
+```powershell
+py -3.11 --version
+```
+
+Se `python` apontar para `C:\Program Files\WindowsApps\...`, desative os aliases
+da Microsoft Store em `Configuracoes > Aplicativos > Configuracoes avancadas de
+aplicativos > Aliases de execucao de aplicativo`, desligando `python.exe` e
+`python3.exe`.
+
 ## Execucao rapida
 
 ### 1. Clonar o projeto
@@ -55,7 +67,7 @@ docker compose ps
 Windows PowerShell:
 
 ```powershell
-python -m venv .venv
+py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 alembic upgrade head
