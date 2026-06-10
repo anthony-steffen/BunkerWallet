@@ -107,6 +107,45 @@ wsl --update
 
 Depois reinicie o Windows e abra o Docker Desktop novamente.
 
+#### Erro `dockerDesktopLinuxEngine` no `docker info`
+
+Se `docker --version` e `docker compose version` funcionam, mas `docker info`
+retorna erro parecido com:
+
+```text
+ERROR: request returned 500 Internal Server Error for API route ...
+dockerDesktopLinuxEngine
+```
+
+o cliente Docker esta instalado, mas o engine Linux do Docker Desktop nao
+iniciou corretamente. Tente, nesta ordem:
+
+1. Feche o Docker Desktop pelo icone perto do relogio: `Quit Docker Desktop`.
+2. Abra um PowerShell como administrador.
+3. Execute:
+
+```powershell
+wsl --shutdown
+Restart-Service com.docker.service
+```
+
+4. Abra o Docker Desktop novamente e aguarde ele indicar que esta rodando.
+5. Teste:
+
+```powershell
+docker info
+docker compose up -d db
+```
+
+Se ainda falhar, confira no Docker Desktop:
+
+- `Settings > General > Use the WSL 2 based engine`.
+- `Settings > Resources > WSL Integration`.
+- `Troubleshoot > Restart Docker Desktop`.
+
+Use opcoes como `Reset to factory defaults` ou remocao de distribuicoes WSL do
+Docker apenas se voce aceitar perder containers, imagens e volumes locais.
+
 ### Alternativa sem Docker
 
 Se preferir testar sem Docker, instale o PostgreSQL localmente e crie o banco e
