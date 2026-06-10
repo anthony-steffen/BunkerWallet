@@ -1,44 +1,36 @@
 # BunkerWallet
 
-BunkerWallet e uma carteira digital para acompanhar criptoativos, transacoes e
-saldo de portfolio com precos atualizados por API de mercado.
+BunkerWallet e uma carteira digital para registrar transacoes de criptoativos e
+acompanhar saldo, historico, graficos e precos de mercado em tempo quase real.
 
-O projeto e dividido em duas partes:
+## Stack
 
 - Backend: FastAPI, SQLAlchemy, Alembic e PostgreSQL.
 - Frontend: React, TypeScript, Vite, React Query e Recharts.
-
-## Funcionalidades atuais
-
-- Cadastro e login de usuarios.
-- Criacao de carteiras por usuario.
-- Cadastro/listagem de ativos.
-- Compra, venda, troca e envio/retirada de criptoativos.
-- Historico de transacoes.
-- Balanco de portfolio.
-- Lista de mercado com precos de criptoativos.
-- Integracao com CoinGecko para precos atuais.
-- Endpoint WebSocket para stream de precos em tempo quase real.
+- Mercado: CoinGecko via API HTTP e WebSocket interno do backend.
 
 ## Requisitos
 
-Antes de rodar, instale:
+- Python 3.11+
+- Node.js 20+
+- Docker Desktop
+- Git
 
-- Python 3.11 ou superior.
-- Node.js 20 ou superior.
-- Docker Desktop.
-- Git.
+No Windows, abra o Docker Desktop antes de iniciar o banco. O comando
+`docker info` deve responder sem erro.
 
-## 1. Clonar o projeto
+## Execucao rapida
+
+### 1. Clonar o projeto
 
 ```bash
 git clone <url-do-repositorio>
 cd BunkerWallet
 ```
 
-## 2. Criar o arquivo `.env`
+### 2. Criar `.env`
 
-Crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz:
 
 ```env
 POSTGRES_USER=wallet_user
@@ -51,154 +43,90 @@ SECRET_KEY=troque-esta-chave-em-producao
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
 
-## 3. Subir o banco de dados
-
-Na raiz do projeto, execute:
+### 3. Subir o PostgreSQL
 
 ```bash
 docker compose up -d db
-```
-
-Para conferir se o container subiu:
-
-```bash
 docker compose ps
 ```
 
-### Se o Docker nao funcionar no Windows
+### 4. Preparar o backend
 
-No Windows, o Docker Desktop precisa estar instalado, aberto e com o daemon
-iniciado antes de rodar `docker compose`.
-
-Checklist rapido:
-
-1. Abra o Docker Desktop pelo menu iniciar.
-2. Aguarde o status ficar como `Docker Desktop is running`.
-3. Feche e abra novamente o VS Code depois de instalar/abrir o Docker.
-4. No terminal do VS Code, teste:
+Windows PowerShell:
 
 ```powershell
-docker --version
-docker compose version
-docker info
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+alembic upgrade head
+python -m app.seeders.seed_assets
+uvicorn app.main:app --reload --port 8000
 ```
 
-Se `docker` nao for reconhecido, adicione este caminho ao `Path` do Windows:
+Linux, macOS ou Git Bash:
 
-```text
-C:\Program Files\Docker\Docker\resources\bin
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+alembic upgrade head
+python -m app.seeders.seed_assets
+uvicorn app.main:app --reload --port 8000
 ```
 
-Depois reinicie o VS Code.
+Backend:
 
-Se o Docker Desktop estiver instalado, mas o servico estiver parado, abra um
-PowerShell como administrador e execute:
+- API: `http://127.0.0.1:8000/`
+- Swagger: `http://127.0.0.1:8000/docs`
+- Precos: `http://127.0.0.1:8000/market/prices?symbols=BTC,ETH,SOL`
 
-```powershell
-Start-Service com.docker.service
+### 5. Rodar o frontend
+
+Abra outro terminal:
+
+```bash
+cd front-end
+npm install
+npm run dev
 ```
 
-Se o Docker pedir WSL 2, rode no PowerShell como administrador:
+Frontend:
 
-```powershell
-wsl --install
-wsl --update
+- App: `http://localhost:5173`
+- API esperada pelo frontend: `http://localhost:8000`
+
+## Fluxo minimo para testar
+
+1. Acesse `http://localhost:5173/register`.
+2. Crie um usuario.
+3. Faca login.
+4. Crie a primeira carteira pela API.
+5. Registre uma compra em `Transacoes`.
+6. Veja o saldo e grafico na Home.
+7. Veja precos de mercado em `Ativos`.
+
+### Criar a primeira carteira
+
+No Swagger (`http://127.0.0.1:8000/docs`):
+
+1. Execute `/auth/login`.
+2. Copie o `access_token`.
+3. Clique em `Authorize` e informe `Bearer SEU_TOKEN`.
+4. Execute `POST /wallets/` com:
+
+```json
+{
+  "name": "Minha Carteira",
+  "description": "Carteira de testes"
+}
 ```
 
-Depois reinicie o Windows e abra o Docker Desktop novamente.
+Sem uma carteira criada, o portfolio e as transacoes nao terao onde registrar
+as operacoes.
 
-#### Erro `dockerDesktopLinuxEngine` no `docker info`
+## Alternativa sem Docker
 
-Se `docker --version` e `docker compose version` funcionam, mas `docker info`
-retorna erro parecido com:
-
-```text
-ERROR: request returned 500 Internal Server Error for API route ...
-dockerDesktopLinuxEngine
-```
-
-o cliente Docker esta instalado, mas o engine Linux do Docker Desktop nao
-iniciou corretamente. Tente, nesta ordem:
-
-1. Feche o Docker Desktop pelo icone perto do relogio: `Quit Docker Desktop`.
-2. Abra um PowerShell como administrador.
-3. Execute:
-
-```powershell
-wsl --shutdown
-Restart-Service com.docker.service
-```
-
-4. Abra o Docker Desktop novamente e aguarde ele indicar que esta rodando.
-5. Teste:
-
-```powershell
-docker info
-docker compose up -d db
-```
-
-Se ainda falhar, confira no Docker Desktop:
-
-- `Settings > General > Use the WSL 2 based engine`.
-- `Settings > Resources > WSL Integration`.
-- `Troubleshoot > Restart Docker Desktop`.
-
-Use opcoes como `Reset to factory defaults` ou remocao de distribuicoes WSL do
-Docker apenas se voce aceitar perder containers, imagens e volumes locais.
-
-#### Erro `Virtualization support not detected`
-
-Se o Docker Desktop mostrar a mensagem:
-
-```text
-Virtualization support not detected
-Docker Desktop failed to start because virtualisation support wasn't detected.
-```
-
-o Windows nao esta enxergando suporte de virtualizacao de hardware. Nesse caso,
-o Docker nao vai iniciar ate a virtualizacao ser habilitada.
-
-Primeiro confira no Windows:
-
-1. Abra o Gerenciador de Tarefas.
-2. Va em `Desempenho > CPU`.
-3. Procure o campo `Virtualizacao`.
-
-Se aparecer `Desabilitado`, reinicie o computador, entre na BIOS/UEFI e habilite
-a opcao de virtualizacao do processador. O nome varia por fabricante:
-
-- Intel: `Intel Virtualization Technology`, `Intel VT-x` ou `VT-d`.
-- AMD: `SVM Mode`, `AMD-V` ou `Virtualization`.
-
-Depois salve, reinicie o Windows e abra o Docker Desktop novamente.
-
-Se a virtualizacao aparecer como habilitada, mas o Docker ainda falhar, abra um
-PowerShell como administrador e habilite os recursos do Windows usados pelo
-Docker Desktop com WSL 2:
-
-```powershell
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-bcdedit /set hypervisorlaunchtype auto
-wsl --update
-```
-
-Reinicie o Windows depois desses comandos.
-
-No Windows Pro, Enterprise ou Education, tambem pode ser necessario habilitar:
-
-```powershell
-dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V-All /all /norestart
-dism.exe /online /enable-feature /featurename:HypervisorPlatform /all /norestart
-```
-
-Se voce estiver em uma maquina virtual, como VirtualBox, VMware, Hyper-V ou uma
-VM em nuvem, habilite `nested virtualization` na configuracao da maquina host.
-
-### Alternativa sem Docker
-
-Se preferir testar sem Docker, instale o PostgreSQL localmente e crie o banco e
-usuario usados pelo projeto:
+Se nao quiser usar Docker, instale PostgreSQL localmente e crie:
 
 ```sql
 CREATE USER wallet_user WITH PASSWORD 'wallet_pass';
@@ -206,118 +134,30 @@ CREATE DATABASE wallet_db OWNER wallet_user;
 GRANT ALL PRIVILEGES ON DATABASE wallet_db TO wallet_user;
 ```
 
-Mantenha o `.env` com:
+Depois mantenha no `.env`:
 
 ```env
 DATABASE_URL=postgresql+psycopg2://wallet_user:wallet_pass@localhost:5432/wallet_db
 ```
 
-## 4. Preparar o backend
+A partir dai, siga os passos do backend normalmente.
 
-Crie e ative um ambiente virtual.
+## Comandos uteis
 
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-Git Bash, Linux ou macOS:
+Banco:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+docker compose up -d db
+docker compose logs -f db
+docker compose down
 ```
-
-Instale as dependencias:
-
-```bash
-pip install -r requirements.txt
-```
-
-Rode as migrations:
-
-```bash
-alembic upgrade head
-```
-
-Popule a tabela de ativos com dados da CoinGecko:
-
-```bash
-python -m app.seeders.seed_assets
-```
-
-Observacao: a API tambem agenda uma atualizacao de ativos em background depois
-que o servidor sobe, mas rodar o seeder manualmente deixa o teste inicial mais
-previsivel.
-
-## 5. Rodar a API
-
-Com o ambiente virtual ativo:
-
-```bash
-uvicorn app.main:app --reload --port 8000
-```
-
-Links uteis:
-
-- API: `http://127.0.0.1:8000/`
-- Swagger: `http://127.0.0.1:8000/docs`
-- Precos de mercado: `http://127.0.0.1:8000/market/prices?symbols=BTC,ETH,SOL`
-- Historico de mercado: `http://127.0.0.1:8000/market/history/BTC?days=7`
-
-## 6. Preparar o frontend
-
-Abra outro terminal:
-
-```bash
-cd BunkerWallet/front-end
-npm install
-npm run dev
-```
-
-O Vite deve abrir em:
-
-```text
-http://localhost:5173
-```
-
-O frontend esta configurado para consumir a API em `http://localhost:8000`.
-
-## 7. Fluxo recomendado para testar
-
-1. Acesse `http://localhost:5173/register`.
-2. Crie uma conta.
-3. Faca login.
-4. Crie uma carteira pelo Swagger ou por uma chamada HTTP autenticada.
-5. Use a tela de transacoes para registrar compra, venda, troca ou envio.
-6. Abra a Home para ver saldo, grafico e tabela do portfolio.
-7. Abra a tela de ativos para acompanhar precos de mercado.
-
-### Criar a primeira carteira pela API
-
-Depois do login, copie o token retornado em `/auth/login` e use no Swagger pelo
-botao `Authorize`, ou faca uma chamada como esta:
-
-```bash
-curl -X POST http://127.0.0.1:8000/wallets/ \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{\"name\":\"Minha Carteira\",\"description\":\"Carteira de testes\"}"
-```
-
-Sem uma carteira criada, as telas de portfolio e transacoes nao terao onde
-registrar as operacoes.
-
-## 8. Comandos uteis
 
 Backend:
 
 ```bash
-uvicorn app.main:app --reload --port 8000
 alembic upgrade head
 python -m app.seeders.seed_assets
+uvicorn app.main:app --reload --port 8000
 ```
 
 Frontend:
@@ -329,24 +169,12 @@ npm run build
 npm run lint
 ```
 
-Banco:
+## Observacoes
 
-```bash
-docker compose up -d db
-docker compose logs -f db
-docker compose down
-```
-
-## Observacoes para interessados em testar
-
-- A integracao de mercado usa a API publica da CoinGecko, portanto pode sofrer
-  limite de requisicoes.
-- O WebSocket interno entrega atualizacoes periodicas, nao ticks de exchange em
-  milissegundos.
-- O frontend local espera backend em `localhost:8000` e Vite em
-  `localhost:5173`.
-- A criacao de carteira ainda e mais direta pelo Swagger/API; esse fluxo pode
-  virar uma tela dedicada em uma proxima melhoria.
+- A API de precos usa CoinGecko e pode sofrer limite de requisicoes.
+- O WebSocket entrega atualizacoes periodicas, nao ticks de exchange.
+- A criacao de carteira ainda e feita pela API/Swagger.
+- Em producao, troque `SECRET_KEY` e configure variaveis de ambiente seguras.
 
 ## Licenca
 
