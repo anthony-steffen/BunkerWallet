@@ -17,7 +17,7 @@ export default function TransactionTabs({ activeTab, setActiveTab }: Props) {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 rounded-lg bg-base-200/70 p-2">
+    <div className="wallet-soft flex flex-wrap justify-center gap-2 rounded-lg p-2">
       {tabs.map((tab) => (
         <button
           key={tab.id}

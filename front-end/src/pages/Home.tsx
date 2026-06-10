@@ -52,7 +52,7 @@ export default function Home() {
 	}));
 
 	return (
-		<div className="min-h-screen text-white flex flex-col">
+		<div className="flex min-h-screen flex-col text-base-content">
 			<LayoutDashboard>
 				<Header walletName="Minha Carteira" onRefresh={refetch} />
 
@@ -65,7 +65,7 @@ export default function Home() {
 						portfolio && (
 							<div className="grid grid-cols-1 gap-10 w-full">
 								<div className="mt-20 flex justify-center">
-									<div className="inline-flex items-center gap-2 rounded-full border border-base-300/40 bg-base-100/70 px-3 py-1 text-xs text-gray-300">
+									<div className="wallet-soft inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs">
 										<span
 											className={`h-2 w-2 rounded-full ${
 												isLive ? "bg-green-400" : "bg-yellow-400"
@@ -73,7 +73,7 @@ export default function Home() {
 										/>
 										<span>{isLive ? "Precos ao vivo" : "Atualizacao periodica"}</span>
 										{lastMessageAt && (
-											<span className="text-gray-500">
+											<span className="wallet-muted">
 												{new Date(lastMessageAt).toLocaleTimeString()}
 											</span>
 										)}

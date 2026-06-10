@@ -79,12 +79,12 @@ export default function BuyCryptoForm() {
           event.preventDefault();
           openPreview();
         }}
-        className="flex flex-col gap-4 max-w-md mx-auto bg-base-100/10 p-6 rounded-lg border border-base-300/20"
+        className="wallet-form mx-auto flex max-w-md flex-col gap-4 rounded-lg p-6"
       >
-        <h2 className="text-lg font-semibold text-gray-100 text-center">Comprar Cripto</h2>
+        <h2 className="text-center text-lg font-semibold">Comprar Cripto</h2>
 
         <select
-          className="select select-bordered bg-base-200 text-gray-100"
+          className="select select-bordered"
           value={assetId}
           onChange={(event) => {
             setAssetId(event.target.value ? Number(event.target.value) : "");
@@ -104,7 +104,7 @@ export default function BuyCryptoForm() {
         <input
           type="number"
           placeholder="Quantidade"
-          className="input input-bordered bg-base-200 text-gray-100"
+          className="input input-bordered"
           value={quantityInput}
           onChange={(event) => setQuantityInput(event.target.value)}
           min="0"
@@ -115,7 +115,7 @@ export default function BuyCryptoForm() {
         <input
           type="number"
           placeholder="Valor total (USD)"
-          className="input input-bordered bg-base-200 text-gray-100"
+          className="input input-bordered"
           value={valueInput}
           onChange={(event) => setValueInput(event.target.value)}
           min="0"
@@ -123,10 +123,10 @@ export default function BuyCryptoForm() {
           disabled={!selected}
         />
 
-        <div className="text-sm text-gray-300 space-y-1">
+        <div className="space-y-1 text-sm wallet-muted">
           {valueInput && price > 0 && (
             <div>
-              <span className="text-gray-400">Voce pode comprar:</span>{" "}
+              <span>Voce pode comprar:</span>{" "}
               <span className="font-semibold text-yellow-400">
                 {formatNumber(estimatedQtyFromValue)} {symbol}
               </span>
@@ -135,7 +135,7 @@ export default function BuyCryptoForm() {
 
           {quantityInput && (
             <div>
-              <span className="text-gray-400">Valor a pagar:</span>{" "}
+              <span>Valor a pagar:</span>{" "}
               <span className="font-semibold text-cyan-400">
                 ${formatCurrency(estimatedValueFromQty)}
               </span>
@@ -143,17 +143,17 @@ export default function BuyCryptoForm() {
           )}
 
           {selected && price > 0 && (
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="mt-1 text-xs wallet-muted">
               Preco atual: 1 {symbol} = ${formatCurrency(price, 4)}
             </div>
           )}
         </div>
 
         <div className="flex gap-2 items-center">
-          <label className="text-xs text-gray-400">Fee (%)</label>
+          <label className="text-xs wallet-muted">Fee (%)</label>
           <input
             type="number"
-            className="input input-sm input-bordered w-24 bg-base-200 text-gray-100"
+            className="input input-sm input-bordered w-24"
             value={feePct ? feePct * 100 : ""}
             onChange={(event) =>
               setFeePct(event.target.value ? Number(event.target.value) / 100 : undefined)
@@ -165,7 +165,7 @@ export default function BuyCryptoForm() {
 
         <button
           type="submit"
-          className="btn bg-gradient-to-r from-yellow-400 to-cyan-400 text-black"
+          className="btn btn-primary"
           disabled={!selected}
         >
           Pre-visualizar

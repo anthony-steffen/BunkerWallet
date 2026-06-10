@@ -80,12 +80,12 @@ export default function SendCryptoForm() {
   return (
     <form
       onSubmit={handleSend}
-      className="flex flex-col gap-4 max-w-md mx-auto bg-base-100/10 p-6 rounded-lg border border-base-300/20"
+      className="wallet-form mx-auto flex max-w-md flex-col gap-4 rounded-lg p-6"
     >
-      <h3 className="text-lg font-semibold text-gray-100 text-center">Enviar Criptoativo</h3>
+      <h3 className="text-center text-lg font-semibold">Enviar Criptoativo</h3>
 
       <select
-        className="select select-bordered bg-base-200 text-gray-100"
+        className="select select-bordered"
         value={selectedSymbol}
         onChange={(event) => {
           setSelectedSymbol(event.target.value);
@@ -103,7 +103,7 @@ export default function SendCryptoForm() {
       <input
         type="number"
         placeholder="Quantidade a enviar"
-        className="input input-bordered bg-base-200 text-gray-100"
+        className="input input-bordered"
         value={amount}
         onChange={(event) => setAmount(event.target.value)}
         min="0"
@@ -114,15 +114,15 @@ export default function SendCryptoForm() {
       <input
         type="text"
         placeholder="Endereco de destino ou hash"
-        className="input input-bordered bg-base-200 text-gray-100"
+        className="input input-bordered"
         value={address}
         onChange={(event) => setAddress(event.target.value)}
       />
 
       {selectedAsset && (
-        <div className="text-sm text-gray-300">
+        <div className="text-sm wallet-muted">
           <p>Valor estimado: ${formatCurrency(usdValue)}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs wallet-muted">
             Saldo disponivel: {formatNumber(selectedAsset.quantity)} {selectedSymbol}
           </p>
         </div>

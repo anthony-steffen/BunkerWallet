@@ -53,7 +53,7 @@ export default function Transactions() {
           </p>
         </div>
 
-        <section className="glass-panel rounded-lg p-4 lg:p-6">
+        <section className="wallet-panel rounded-lg p-4 lg:p-6">
           <TransactionTabs activeTab={activeTab} setActiveTab={handleTabChange} />
 
           <div className="mt-6">

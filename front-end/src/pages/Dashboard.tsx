@@ -17,33 +17,33 @@ export default function Dashboard() {
 			<Header walletName="Dashboard" onRefresh={refetchWallets} />
 
 			<main className="mx-auto mt-24 grid w-full max-w-6xl grid-cols-1 gap-4 px-4 pb-24 lg:grid-cols-3">
-				<section className="rounded-lg border border-base-300/30 bg-base-100/50 p-4">
-					<p className="text-sm text-gray-400">Carteiras</p>
-					<strong className="text-3xl text-white">{wallets.length}</strong>
+				<section className="wallet-panel rounded-lg p-4">
+					<p className="text-sm wallet-muted">Carteiras</p>
+					<strong className="text-3xl">{wallets.length}</strong>
 				</section>
 
-				<section className="rounded-lg border border-base-300/30 bg-base-100/50 p-4">
-					<p className="text-sm text-gray-400">Ativos cadastrados</p>
-					<strong className="text-3xl text-white">{assets.length}</strong>
+				<section className="wallet-panel rounded-lg p-4">
+					<p className="text-sm wallet-muted">Ativos cadastrados</p>
+					<strong className="text-3xl">{assets.length}</strong>
 				</section>
 
-				<section className="rounded-lg border border-base-300/30 bg-base-100/50 p-4">
-					<p className="text-sm text-gray-400">Transacoes</p>
-					<strong className="text-3xl text-white">{transactions.length}</strong>
+				<section className="wallet-panel rounded-lg p-4">
+					<p className="text-sm wallet-muted">Transacoes</p>
+					<strong className="text-3xl">{transactions.length}</strong>
 				</section>
 
-				<section className="rounded-lg border border-base-300/30 bg-base-100/50 p-4 lg:col-span-3">
+				<section className="wallet-panel rounded-lg p-4 lg:col-span-3">
 					<div className="mb-3 flex items-center justify-between">
 						<h2 className="text-lg font-semibold">Ultimas transacoes</h2>
-						<span className="text-xs text-gray-500">
+						<span className="text-xs wallet-muted">
 							{transactionsLoading ? "Carregando" : "Atualizado"}
 						</span>
 					</div>
 
 					<div className="overflow-x-auto">
-						<table className="w-full text-sm text-gray-300">
+						<table className="w-full text-sm">
 							<thead>
-								<tr className="border-b border-base-300/30 text-left text-xs uppercase text-gray-500">
+								<tr className="border-b border-base-300 text-left text-xs uppercase wallet-muted">
 									<th className="py-2">Tipo</th>
 									<th className="py-2">Ativo</th>
 									<th className="py-2 text-right">Quantidade</th>
@@ -52,7 +52,7 @@ export default function Dashboard() {
 							</thead>
 							<tbody>
 								{latestTransactions.map((tx) => (
-									<tr key={tx.id} className="border-b border-base-300/10">
+									<tr key={tx.id} className="border-b border-base-300/70">
 										<td className="py-2">{tx.type}</td>
 										<td className="py-2">{tx.asset?.symbol ?? tx.asset_id}</td>
 										<td className="py-2 text-right">{Number(tx.amount)}</td>

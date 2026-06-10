@@ -69,9 +69,9 @@ export default function SellCryptoForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 max-w-md mx-auto bg-base-100/10 p-6 rounded-lg border border-base-300/20"
+      className="wallet-form mx-auto flex max-w-md flex-col gap-4 rounded-lg p-6"
     >
-      <h2 className="text-lg font-semibold text-gray-100 text-center">Vender Cripto</h2>
+      <h2 className="text-center text-lg font-semibold">Vender Cripto</h2>
 
       <select
         value={symbol}
@@ -79,7 +79,7 @@ export default function SellCryptoForm() {
           setSymbol(event.target.value);
           setQuantity("");
         }}
-        className="select select-bordered bg-base-200 text-gray-100"
+        className="select select-bordered"
       >
         <option value="">Selecione o ativo</option>
         {portfolioAssets.map((asset) => (
@@ -92,7 +92,7 @@ export default function SellCryptoForm() {
       <input
         type="number"
         placeholder="Quantidade"
-        className="input input-bordered bg-base-200 text-gray-100"
+        className="input input-bordered"
         value={quantity}
         onChange={(event) => setQuantity(event.target.value)}
         min="0"
@@ -102,10 +102,10 @@ export default function SellCryptoForm() {
       />
 
       {selectedHolding && (
-        <div className="text-sm text-gray-300">
+        <div className="text-sm wallet-muted">
           <p>Preco atual: ${formatCurrency(price, 4)}</p>
           <p>Valor estimado: ${formatCurrency(valueUsd)}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs wallet-muted">
             Saldo disponivel: {formatNumber(selectedHolding.quantity)} {symbol}
           </p>
         </div>

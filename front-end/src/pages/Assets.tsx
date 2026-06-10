@@ -42,7 +42,7 @@ export default function AssetsPage() {
 	);
 
 	return (
-		<div className="min-h-screen text-white flex flex-col">
+		<div className="flex min-h-screen flex-col text-base-content">
 			<LayoutDashboard>
 				<Header walletName="Mercado" onRefresh={refetch} />
 
@@ -50,13 +50,13 @@ export default function AssetsPage() {
 					<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
 							<h1 className="text-xl font-semibold">Criptoativos</h1>
-							<p className="text-sm text-gray-400">
+							<p className="text-sm wallet-muted">
 								Precos, volume e variacao de mercado
 							</p>
 						</div>
 
 						<div className="flex items-center gap-3">
-							<div className="inline-flex items-center gap-2 rounded-full border border-base-300/40 bg-base-100/70 px-3 py-1 text-xs text-gray-300">
+							<div className="wallet-soft inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs">
 								<span
 									className={`h-2 w-2 rounded-full ${
 										isLive ? "bg-green-400" : "bg-yellow-400"
@@ -69,17 +69,17 @@ export default function AssetsPage() {
 								value={search}
 								onChange={(event) => setSearch(event.target.value)}
 								placeholder="Buscar ativo"
-								className="input input-sm input-bordered bg-base-100 text-gray-100"
+								className="input input-sm input-bordered"
 							/>
 						</div>
 					</div>
 
-					{isLoading && <p className="text-gray-400">Carregando ativos...</p>}
+					{isLoading && <p className="wallet-muted">Carregando ativos...</p>}
 					{isError && <p className="text-red-400">Erro ao carregar ativos.</p>}
 
 					{!isLoading && !isError && (
 						<>
-							<div className="hidden lg:block overflow-x-auto rounded-lg border border-base-300/30 bg-base-100/40">
+							<div className="wallet-panel hidden overflow-x-auto rounded-lg lg:block">
 								<AssetsTable assets={filtered} />
 							</div>
 

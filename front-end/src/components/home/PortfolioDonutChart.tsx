@@ -1,5 +1,3 @@
-/* src/components/home/PortfolioDonutChart.tsx */
-import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface AssetDatum {
@@ -51,14 +49,14 @@ export function PortfolioDonutChart({ data, total }: PortfolioDonutChartProps) {
 
         {/* Valor centralizado */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-          <p className="text-3xl font-bold text-white">
+          <p className="text-3xl font-bold text-base-content">
             $
             {Number(total ?? 0).toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
           </p>
-          <p className="text-sm text-gray-400">Saldo total</p>
+          <p className="text-sm wallet-muted">Saldo total</p>
         </div>
       </div>
 
@@ -70,8 +68,8 @@ export function PortfolioDonutChart({ data, total }: PortfolioDonutChartProps) {
               className="inline-block w-3 h-3 rounded-full"
               style={{ backgroundColor: asset.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length] }}
             />
-            <span className="text-gray-300">{asset.symbol}</span>
-            <span className="text-gray-500">({Number(asset.percentage).toFixed(1)}%)</span>
+            <span>{asset.symbol}</span>
+            <span className="wallet-muted">({Number(asset.percentage).toFixed(1)}%)</span>
           </div>
         ))}
       </div>

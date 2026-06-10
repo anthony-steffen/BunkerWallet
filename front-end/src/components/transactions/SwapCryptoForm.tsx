@@ -84,18 +84,18 @@ export default function SwapCryptoForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 max-w-lg mx-auto bg-base-100/10 p-6 rounded-lg border border-base-300/20"
+      className="wallet-form mx-auto flex max-w-lg flex-col gap-4 rounded-lg p-6"
     >
-      <h2 className="text-lg font-semibold text-gray-100 text-center">Trocar Cripto</h2>
+      <h2 className="text-center text-lg font-semibold">Trocar Cripto</h2>
 
-      <label className="text-sm text-gray-400">De</label>
+      <label className="text-sm wallet-muted">De</label>
       <select
         value={fromSymbol}
         onChange={(event) => {
           setFromSymbol(event.target.value);
           setQuantity("");
         }}
-        className="select select-bordered bg-base-200 text-gray-100"
+        className="select select-bordered"
       >
         <option value="">Selecione ativo de origem</option>
         {portfolioAssets.map((asset) => (
@@ -105,11 +105,11 @@ export default function SwapCryptoForm() {
         ))}
       </select>
 
-      <label className="text-sm text-gray-400">Para</label>
+      <label className="text-sm wallet-muted">Para</label>
       <select
         value={toAssetId}
         onChange={(event) => setToAssetId(event.target.value ? Number(event.target.value) : "")}
-        className="select select-bordered bg-base-200 text-gray-100"
+        className="select select-bordered"
       >
         <option value="">Selecione ativo de destino</option>
         {assets.map((asset) => (
@@ -124,7 +124,7 @@ export default function SwapCryptoForm() {
         value={quantity}
         onChange={(event) => setQuantity(event.target.value)}
         placeholder="Quantidade de origem"
-        className="input input-bordered bg-base-200 text-gray-100"
+        className="input input-bordered"
         min="0"
         max={fromHolding?.quantity}
         step="any"
@@ -132,7 +132,7 @@ export default function SwapCryptoForm() {
       />
 
       {fromHolding && toAsset && (
-        <div className="rounded-lg bg-base-200/60 p-3 text-sm text-gray-300">
+        <div className="wallet-soft rounded-lg p-3 text-sm">
           <p>
             {formatNumber(fromAmount)} {fromSymbol} = $
             {formatCurrency(grossUsd)}
@@ -141,7 +141,7 @@ export default function SwapCryptoForm() {
             Recebimento estimado: {formatNumber(estimatedToAmount)}{" "}
             {toAsset.symbol.toUpperCase()}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs wallet-muted">
             1 {fromSymbol} = ${formatCurrency(fromPrice, 4)} | 1{" "}
             {toAsset.symbol.toUpperCase()} = ${formatCurrency(toPrice, 4)}
           </p>
