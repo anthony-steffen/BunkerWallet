@@ -5,6 +5,7 @@ import { PortfolioDonutChart } from "@/components/home/PortfolioDonutChart";
 import PortfolioTable from "@/components/home/PortfolioTable";
 import { useMarketStream } from "@/hooks/useMarket";
 import { usePortfolio } from "@/hooks/usePortfolio";
+import { asNumber } from "@/utils/format";
 
 export default function Home() {
 	const { data: portfolio, isLoading, refetch } = usePortfolio();
@@ -13,31 +14,34 @@ export default function Home() {
 
 	const liveAssets = (portfolio?.assets ?? []).map((asset) => {
 		const live = prices[asset.symbol.toUpperCase()];
-		const livePrice = live?.price ?? asset.current_price;
-		const valueUsd = asset.quantity * livePrice;
+		const quantity = asNumber(asset.quantity);
+		const livePrice = asNumber(live?.price ?? asset.current_price);
+		const purchasePrice = asNumber(asset.purchase_price);
+		const valueUsd = quantity * livePrice;
 		const performancePct =
-			asset.purchase_price && asset.purchase_price > 0
-				? ((livePrice - asset.purchase_price) / asset.purchase_price) * 100
-				: asset.performance_pct ?? 0;
-		const price24hAgo = live?.price_24h_ago ?? asset.price_24h_ago;
+			purchasePrice > 0
+				? ((livePrice - purchasePrice) / purchasePrice) * 100
+				: asNumber(asset.performance_pct);
+		const price24hAgo = asNumber(live?.price_24h_ago ?? asset.price_24h_ago);
 		const change24hUsd =
-			price24hAgo && price24hAgo > 0
-				? (livePrice - price24hAgo) * asset.quantity
-				: asset.change_24h_usd ?? 0;
+			price24hAgo > 0
+				? (livePrice - price24hAgo) * quantity
+				: asNumber(asset.change_24h_usd);
 
 		return {
 			...asset,
+			quantity,
 			current_price: livePrice,
 			value_usd: valueUsd,
 			performance_pct: performancePct,
 			price_24h_ago: price24hAgo,
 			change_24h_usd: change24hUsd,
-			performance_pct_24h: live?.change_pct_24h ?? asset.performance_pct_24h,
+			performance_pct_24h: asNumber(live?.change_pct_24h ?? asset.performance_pct_24h),
 			last_price_update: live?.last_updated_at ?? asset.last_price_update,
 		};
 	});
 
-	const liveTotal = liveAssets.reduce((sum, asset) => sum + asset.value_usd, 0);
+	const liveTotal = liveAssets.reduce((sum, asset) => sum + asNumber(asset.value_usd), 0);
 	const livePortfolioAssets = liveAssets.map((asset) => ({
 		...asset,
 		percentage: liveTotal > 0 ? (asset.value_usd / liveTotal) * 100 : 0,

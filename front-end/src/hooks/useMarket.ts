@@ -93,21 +93,27 @@ export function useMarketStream(
     ws.onclose = () => setIsLive(false);
     ws.onerror = () => setIsLive(false);
     ws.onmessage = (event) => {
-      const payload = JSON.parse(event.data);
+      let payload: { type?: string; prices?: MarketPricesMap };
+      try {
+        payload = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
       if (payload.type !== "prices") return;
 
-      setPrices(payload.prices);
+      setPrices(payload.prices ?? {});
       setLastMessageAt(new Date().toISOString());
       queryClient.setQueryData(
         marketQueryKey(normalized, currency),
-        payload.prices
+        payload.prices ?? {}
       );
     };
 
     return () => {
       ws.close();
     };
-  }, [currency, interval, queryClient, symbolKey]);
+  }, [currency, interval, normalized, queryClient, symbolKey]);
 
   return { prices, isLive, lastMessageAt };
 }

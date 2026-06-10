@@ -15,9 +15,13 @@ export default function SwapCryptoForm() {
   const walletId = wallets[0]?.id;
   const { data: portfolio } = usePortfolio(walletId);
   const { data: assets = [] } = useAssets();
-  const portfolioAssets = portfolio?.assets ?? [];
-  const symbols = Array.from(
-    new Set([...portfolioAssets.map((a) => a.symbol), ...assets.map((a) => a.symbol)])
+  const portfolioAssets = useMemo(() => portfolio?.assets ?? [], [portfolio?.assets]);
+  const symbols = useMemo(
+    () =>
+      Array.from(
+        new Set([...portfolioAssets.map((asset) => asset.symbol), ...assets.map((asset) => asset.symbol)])
+      ),
+    [assets, portfolioAssets]
   );
   const { prices } = useMarketStream(symbols);
   const { createSwap } = useTransactions(walletId);

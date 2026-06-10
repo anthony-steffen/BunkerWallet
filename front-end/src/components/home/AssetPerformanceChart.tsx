@@ -1,12 +1,18 @@
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-export default function PortfolioDonutChart({ data }: { data: any[] }) {
-  if (!data || data.length === 0) {
-    return <div className="text-gray-400 text-center">Nenhum dado disponível</div>;
+interface PerformanceSlice {
+  symbol: string;
+  percentage: number;
+  color?: string;
+}
+
+export default function AssetPerformanceChart({ data }: { data: PerformanceSlice[] }) {
+  if (!data.length) {
+    return <div className="text-center text-base-content/55">Nenhum dado disponivel</div>;
   }
 
   return (
-    <div className="w-full h-[300px]"> {/* altura explícita! */}
+    <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -17,8 +23,8 @@ export default function PortfolioDonutChart({ data }: { data: any[] }) {
             cy="50%"
             outerRadius="80%"
           >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color || "#8884d8"} />
+            {data.map((entry) => (
+              <Cell key={entry.symbol} fill={entry.color || "#22d3ee"} />
             ))}
           </Pie>
           <Tooltip />

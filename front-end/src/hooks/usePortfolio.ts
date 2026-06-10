@@ -1,21 +1,20 @@
-// src/hooks/usePortfolio.ts
 import { useQuery } from "@tanstack/react-query";
 import api from "@/api/api";
 
 export interface Asset {
   name: string;
   symbol: string;
-  color: string;
-  image: string;
+  color?: string;
+  image?: string;
   quantity: number;
   current_price: number;
-  purchase_price?: number;
+  purchase_price?: number | null;
   value_usd: number;
-  performance_pct?: number;
-  price_24h_ago?: number;
-  change_24h_usd?: number;
-  performance_pct_24h?: number;
-  last_price_update?: string;
+  performance_pct?: number | null;
+  price_24h_ago?: number | null;
+  change_24h_usd?: number | null;
+  performance_pct_24h?: number | null;
+  last_price_update?: string | null;
   percentage: number;
 }
 
@@ -24,28 +23,32 @@ export interface PortfolioSummary {
   assets: Asset[];
 }
 
+interface WalletRecord {
+  id: number;
+}
+
 export function usePortfolio(walletId?: number) {
   return useQuery<PortfolioSummary>({
     queryKey: ["portfolio", walletId],
     queryFn: async () => {
-      console.log("🚀 usePortfolio → Iniciando fetch...");
+      const walletsRes = await api.get<WalletRecord[]>("/wallets/");
 
-      const walletsRes = await api.get("/wallets/");
-
-      if (!walletsRes.data?.length)
+      if (!walletsRes.data?.length) {
         throw new Error("Nenhuma carteira encontrada");
+      }
 
       const wallet = walletId
-        ? walletsRes.data.find((w: any) => w.id === walletId)
+        ? walletsRes.data.find((item) => item.id === walletId)
         : walletsRes.data[0];
 
-      if (!wallet) throw new Error("Carteira não encontrada!");
+      if (!wallet) {
+        throw new Error("Carteira nao encontrada");
+      }
 
-      const res = await api.get(`/wallets/${wallet.id}/portfolio`);
-
+      const res = await api.get<PortfolioSummary>(`/wallets/${wallet.id}/portfolio`);
       return res.data;
     },
-    enabled: true, // ⚠️ Temporariamente deixa sempre ativo para debugar
+    enabled: true,
     refetchInterval: 30_000,
     staleTime: 10_000,
   });

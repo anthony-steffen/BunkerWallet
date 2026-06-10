@@ -15,7 +15,7 @@ export default function SendCryptoForm() {
   const walletId = wallets[0]?.id;
   const { data: portfolio, isLoading, error } = usePortfolio(walletId);
   const { data: assets = [] } = useAssets();
-  const portfolioAssets = portfolio?.assets ?? [];
+  const portfolioAssets = useMemo(() => portfolio?.assets ?? [], [portfolio?.assets]);
   const { prices } = useMarketStream(portfolioAssets.map((asset) => asset.symbol));
   const { createTransaction } = useTransactions(walletId);
 
