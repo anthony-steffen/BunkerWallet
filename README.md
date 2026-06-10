@@ -146,6 +146,55 @@ Se ainda falhar, confira no Docker Desktop:
 Use opcoes como `Reset to factory defaults` ou remocao de distribuicoes WSL do
 Docker apenas se voce aceitar perder containers, imagens e volumes locais.
 
+#### Erro `Virtualization support not detected`
+
+Se o Docker Desktop mostrar a mensagem:
+
+```text
+Virtualization support not detected
+Docker Desktop failed to start because virtualisation support wasn't detected.
+```
+
+o Windows nao esta enxergando suporte de virtualizacao de hardware. Nesse caso,
+o Docker nao vai iniciar ate a virtualizacao ser habilitada.
+
+Primeiro confira no Windows:
+
+1. Abra o Gerenciador de Tarefas.
+2. Va em `Desempenho > CPU`.
+3. Procure o campo `Virtualizacao`.
+
+Se aparecer `Desabilitado`, reinicie o computador, entre na BIOS/UEFI e habilite
+a opcao de virtualizacao do processador. O nome varia por fabricante:
+
+- Intel: `Intel Virtualization Technology`, `Intel VT-x` ou `VT-d`.
+- AMD: `SVM Mode`, `AMD-V` ou `Virtualization`.
+
+Depois salve, reinicie o Windows e abra o Docker Desktop novamente.
+
+Se a virtualizacao aparecer como habilitada, mas o Docker ainda falhar, abra um
+PowerShell como administrador e habilite os recursos do Windows usados pelo
+Docker Desktop com WSL 2:
+
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+bcdedit /set hypervisorlaunchtype auto
+wsl --update
+```
+
+Reinicie o Windows depois desses comandos.
+
+No Windows Pro, Enterprise ou Education, tambem pode ser necessario habilitar:
+
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Hyper-V-All /all /norestart
+dism.exe /online /enable-feature /featurename:HypervisorPlatform /all /norestart
+```
+
+Se voce estiver em uma maquina virtual, como VirtualBox, VMware, Hyper-V ou uma
+VM em nuvem, habilite `nested virtualization` na configuracao da maquina host.
+
 ### Alternativa sem Docker
 
 Se preferir testar sem Docker, instale o PostgreSQL localmente e crie o banco e
