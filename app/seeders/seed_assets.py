@@ -103,11 +103,11 @@ def seed_assets(limit: int = 100):
 
         db.execute(stmt)
         db.commit()
-        print(f"✅ Seeder executado com {len(payloads)} registros (upsert).")
+        print(f"Seeder executado com {len(payloads)} registros (upsert).")
 
     except Exception as e:
         db.rollback()
-        print("❌ Erro ao rodar seeder:", repr(e))
+        print("Erro ao rodar seeder:", repr(e))
 
     finally:
         db.close()
